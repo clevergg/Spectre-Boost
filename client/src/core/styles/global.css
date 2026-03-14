@@ -1,0 +1,141 @@
+@import 'tailwindcss';
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+@theme {
+	--breakpoint-xs: 30rem;
+	--breakpoint-lgx: 70rem;
+	--font-unbounded: 'Unbounded';
+	--font-gilroy: 'Gilroy';
+	--font-gilroyMedium: 'GilroyMedium';
+	--color-bgblack: #000000;
+	--color-black: #090909;
+	--color-gray: #505050;
+	--color-gray-dark: #121212;
+	--color-pink-gradient1: #fd72e6;
+	--color-pink-gradient2: #ff97ee;
+	--color-spectre-purple: #a855f7;
+	--color-spectre-blue: #3b82f6;
+	--color-spectre-cyan: #22d3ee;
+	--color-violet: #907aa6;
+	--color-first-color: #03080a;
+	--color-second-color: #0d0913;
+
+	@keyframes moveHorizontal {
+		0% {
+			transform: translateX(-30%) translateY(-5%);
+		}
+		50% {
+			transform: translateX(200%) translateY(-10%);
+		}
+		100% {
+			transform: translateX(-30%) translateY(-5%);
+		}
+	}
+
+	@keyframes moveInCircle {
+		0% {
+			transform: rotate(0deg);
+		}
+		50% {
+			transform: rotate(180deg);
+		}
+		100% {
+			transform: rotate(360deg);
+		}
+	}
+
+	@keyframes moveVertical {
+		0% {
+			transform: translateY(-50%);
+		}
+		50% {
+			transform: translateY(50%);
+		}
+		100% {
+			transform: translateY(-50%);
+		}
+	}
+}
+
+@font-face {
+	font-family: Gilroy;
+	font-style: normal;
+	font-weight: 300;
+	font-display: swap;
+	src: url('../../assets/fonts/Gilroy-Light.woff2') format('woff2');
+}
+
+@font-face {
+	font-family: GilroyMedium;
+	font-style: normal;
+	font-weight: 500;
+	font-display: swap;
+	src: url('../../assets/fonts/Gilroy-Medium.woff2') format('woff2');
+}
+
+@font-face {
+	font-family: Unbounded;
+	font-style: normal;
+	font-weight: 900;
+	font-display: swap;
+	src: url('../../assets/fonts/Unbounded-Bold.woff2') format('woff2');
+}
+
+* {
+	box-sizing: border-box;
+}
+
+.no-scroll {
+	overflow: hidden;
+}
+
+html {
+	scrollbar-width: none;
+	-ms-overflow-style: none;
+	scroll-behavior: smooth;
+}
+
+html::-webkit-scrollbar {
+	display: none;
+}
+
+body {
+	-webkit-overflow-scrolling: touch;
+	background-color: #000000;
+}
+
+li,
+Link,
+a {
+	cursor: pointer;
+}
+.scrollbar-hide {
+	-ms-overflow-style: none; /* IE и Edge */
+	scrollbar-width: none; /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+	display: none; /* Chrome, Safari и Opera */
+}
+
+
+.text-gradient-purple-blue {
+	color: transparent;
+	background-image: linear-gradient(to right, #ff93ed, #799fff);
+	-webkit-background-clip: text;
+	background-clip: text;
+}
+
+.LinkHover {
+	filter: drop-shadow(0 0 15px #fff) drop-shadow(0 0 15px #fff);
+}
+
+.ShiningBlue {
+	filter: drop-shadow(0 0 10px #3e7084) drop-shadow(0 0 15px #3e7084);
+}
+
+.ShiningRed {
+	filter: drop-shadow(0 0 10px #42245e) drop-shadow(0 0 15px #42245e);
+}
+

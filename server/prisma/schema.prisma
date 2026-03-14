@@ -1,0 +1,141 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url = env("DATABASE_URL")
+}
+
+// ─── Роли пользователей ───
+enum Role {
+  CUSTOMER
+  WORKER
+  ADMIN
+}
+
+// ─── Статусы заказа ───
+enum OrderStatus {
+  PENDING
+  ASSIGNED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+// ─── Пользователь ───
+model User {
+  id          Int      @id @default(autoincrement())
+  telegramId  BigInt   @unique
+  username    String?
+  firstName   String?
+  lastName    String?
+  photoUrl    String?
+  role        Role     @default(CUSTOMER)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Поля работника (role = WORKER)
+  isAvailable    Boolean @default(true)
+  rating         Float   @default(5.0)
+  completedCount Int     @default(0)
+
+  // Связи
+  orders        Order[]       @relation("CustomerOrders")
+  assignedTasks Order[]       @relation("WorkerOrders")
+  workerSkills  WorkerSkill[]
+
+  @@map("users")
+}
+
+// ─── Навыки работников ───
+model WorkerSkill {
+  id             Int          @id @default(autoincrement())
+  userId         Int
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  gameCategoryId Int
+  gameCategory   GameCategory @relation(fields: [gameCategoryId], references: [id], onDelete: Cascade)
+  createdAt      DateTime     @default(now())
+
+  @@unique([userId, gameCategoryId])
+  @@map("worker_skills")
+}
+
+// ─── Категория игры ───
+model GameCategory {
+  id           Int           @id @default(autoincrement())
+  name         String        @unique
+  description  String?
+  services     Service[]
+  workerSkills WorkerSkill[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  @@map("game_categories")
+}
+
+// ─── Тип услуги ───
+model ServiceType {
+  id          Int       @id @default(autoincrement())
+  name        String    @unique
+  description String?
+  services    Service[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("service_types")
+}
+
+// ─── Услуга ───
+model Service {
+  id           Int      @id @default(autoincrement())
+  name         String
+  description  String
+  basePrice    Int
+  pricePerUnit Int?
+  minUnits     Int?
+  maxUnits     Int?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  gameCategoryId Int
+  gameCategory   GameCategory @relation(fields: [gameCategoryId], references: [id], onDelete: Cascade)
+
+  serviceTypeId Int
+  serviceType   ServiceType @relation(fields: [serviceTypeId], references: [id], onDelete: Cascade)
+
+  orders Order[]
+
+  @@map("services")
+}
+
+// ─── Заказ ───
+model Order {
+  id          Int         @id @default(autoincrement())
+  status      OrderStatus @default(PENDING)
+  startValue  Int?
+  targetValue Int?
+  totalPrice  Int
+  additions   Json?
+
+  customerId Int
+  customer   User @relation("CustomerOrders", fields: [customerId], references: [id], onDelete: Cascade)
+
+  workerId Int?
+  worker   User? @relation("WorkerOrders", fields: [workerId], references: [id], onDelete: SetNull)
+
+  serviceId Int
+  service   Service @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  botMessageId  Int?
+  customerMsgId Int?
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  assignedAt  DateTime?
+  completedAt DateTime?
+
+  @@map("orders")
+}

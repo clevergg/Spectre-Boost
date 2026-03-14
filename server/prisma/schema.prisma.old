@@ -1,0 +1,118 @@
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../node_modules/.prisma/client"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int       @id @default(autoincrement())
+  telegramId   BigInt    @unique
+  username     String?
+  firstName    String?
+  lastName    String?
+  isWorker     Boolean   @default(false)
+  isActive     Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  // Связи
+  orders       Order[]   
+  assignedTasks Order[]  @relation("OrderAssignedToWorker")
+  workerSkills WorkerSkill[] // Навыки работника (какие игры может выполнять)
+
+  @@map("users")
+  Order Order[] @relation("CustomerOrders")
+}
+
+// Таблица для навыков работников
+model WorkerSkill {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  gameCategoryId Int
+  gameCategory GameCategory @relation(fields: [gameCategoryId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, gameCategoryId])
+  @@map("worker_skills")
+}
+
+model GameCategory {
+  id          Int       @id @default(autoincrement())
+  name        String    @unique
+  description String?
+  services    Service[]
+  workerSkills WorkerSkill[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("game_categories")
+}
+
+model ServiceType {
+  id          Int       @id @default(autoincrement())
+  name        String    @unique
+  description String?
+  services    Service[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("service_types")
+}
+
+model Service {
+  id              Int       @id @default(autoincrement())
+  name            String
+  description     String
+  basePrice       Float
+  pricePerUnit    Float?
+  minUnits        Int?
+  maxUnits        Int?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  gameCategoryId  Int
+  gameCategory    GameCategory @relation(fields: [gameCategoryId], references: [id], onDelete: Cascade)
+  
+  serviceTypeId   Int
+  serviceType     ServiceType  @relation(fields: [serviceTypeId], references: [id], onDelete: Cascade)
+
+  orders          Order[]
+
+  @@map("services")
+}
+
+model Order {
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  status      OrderStatus @default(PENDING)
+  startValue  Int?
+  targetValue Int?
+  totalPrice  Float
+
+  customerId  Int
+  customer    User     @relation("CustomerOrders", fields: [customerId], references: [id], onDelete: Cascade)
+  
+  serviceId   Int
+  service     Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  
+  workerId    Int?
+  worker      User?    @relation("OrderAssignedToWorker", fields: [workerId], references: [id], onDelete: SetNull)
+
+  @@map("orders")
+  User User[]
+}
+
+enum OrderStatus {
+  PENDING
+  ASSIGNED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
