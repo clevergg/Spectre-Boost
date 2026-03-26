@@ -5,7 +5,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url = env("DATABASE_URL")
+  url      = env("DATABASE_URL")
 }
 
 // ─── Роли пользователей ───
@@ -22,6 +22,13 @@ enum OrderStatus {
   IN_PROGRESS
   COMPLETED
   CANCELLED
+}
+
+// ─── Статус отзыва ───
+enum ReviewStatus {
+  PENDING   // ожидает модерации
+  APPROVED  // одобрен, видно на сайте
+  REJECTED  // отклонён
 }
 
 // ─── Пользователь ───
@@ -46,6 +53,8 @@ model User {
   orders        Order[]       @relation("CustomerOrders")
   assignedTasks Order[]       @relation("WorkerOrders")
   workerSkills  WorkerSkill[]
+  reviews       Review[]
+  supportTickets SupportTicket[]
 
   @@map("users")
 }
@@ -132,10 +141,122 @@ model Order {
   botMessageId  Int?
   customerMsgId Int?
 
+  // Оценка бустера покупателем (1-5, null = не оценено)
+  rating Int?
+
+  // ID работников которые отклонили заказ (для перераспределения)
+  rejectedByIds Json?    // [1, 5, 8] — массив user IDs
+
+  // Промокод (если применён)
+  promoCodeId Int?
+  promoCode   PromoCode? @relation(fields: [promoCodeId], references: [id], onDelete: SetNull)
+  discount    Int?       // процент скидки на момент заказа
+
+  paymentId     String?
+  paymentStatus PaymentStatus @default(PENDING)
+
+  // Связь с отзывом
+  review Review?
+
+  // Сообщения чата
+  chatMessages ChatMessage[]
+
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   assignedAt  DateTime?
   completedAt DateTime?
 
+
   @@map("orders")
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  CANCELLED
+  REFUNDED
+}
+
+// ─── Отзыв ───
+model Review {
+  id        Int          @id @default(autoincrement())
+  rating    Int                          // 1-5 звёзд
+  text      String                       // текст отзыва
+  status    ReviewStatus @default(PENDING) // модерация
+
+  // Автор отзыва
+  authorId  Int
+  author    User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  // К какому заказу (один отзыв на заказ)
+  orderId   Int    @unique
+  order     Order  @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("reviews")
+}
+
+// ─── Тикеты поддержки ───
+enum TicketStatus {
+  OPEN      // ожидает ответа
+  ANSWERED  // админ ответил
+  CLOSED    // закрыт
+}
+
+model SupportTicket {
+  id        Int          @id @default(autoincrement())
+  message   String                          // текст обращения
+  photoFileId String?                       // Telegram file_id фото (если прикреплено)
+  status    TicketStatus @default(OPEN)
+  reply     String?                         // ответ админа
+  repliedAt DateTime?                       // когда ответили
+
+  // Автор обращения
+  userId    Int
+  user      User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Админ который ответил
+  adminId   Int?
+
+  createdAt DateTime @default(now())
+
+  @@map("support_tickets")
+}
+
+// ─── Промокоды ───
+model PromoCode {
+  id           Int      @id @default(autoincrement())
+  code         String   @unique              // BLOGER10
+  discount     Int                           // процент скидки (5-50)
+  influencer   String                        // имя инфлюенсера
+  isActive     Boolean  @default(true)
+  usageCount   Int      @default(0)          // сколько раз использован
+  maxUses      Int?                          // лимит (null = безлимит)
+
+  orders       Order[]                       // заказы с этим промокодом
+
+  createdAt    DateTime @default(now())
+
+  @@map("promo_codes")
+}
+
+// ─── Сообщения чата заказа ───
+model ChatMessage {
+  id        Int      @id @default(autoincrement())
+
+  orderId   Int
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  senderId  Int                    // user ID отправителя
+  senderRole String               // "CUSTOMER" | "WORKER"
+
+  text      String?               // текст сообщения
+  fileId    String?               // Telegram file_id (фото, документ, стикер и т.д.)
+  fileType  String?               // "photo" | "document" | "sticker" | "voice" | "video"
+
+  createdAt DateTime @default(now())
+
+  @@map("chat_messages")
 }

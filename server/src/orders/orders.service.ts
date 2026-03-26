@@ -51,14 +51,39 @@ export class OrdersService {
       throw new NotFoundException('Service not found');
     }
 
+    // Применяем промокод если есть
+    let promoCodeId: number | null = null;
+    let discount: number | null = null;
+    let finalPrice = dto.totalPrice;
+
+    if (dto.promoCode) {
+      const promo = await this.prisma.promoCode.findUnique({
+        where: { code: dto.promoCode.toUpperCase() },
+      });
+
+      if (promo && promo.isActive && (!promo.maxUses || promo.usageCount < promo.maxUses)) {
+        promoCodeId = promo.id;
+        discount = promo.discount;
+        finalPrice = Math.round(dto.totalPrice * (1 - promo.discount / 100));
+
+        // Увеличиваем счётчик использований
+        await this.prisma.promoCode.update({
+          where: { id: promo.id },
+          data: { usageCount: { increment: 1 } },
+        });
+      }
+    }
+
     const order = await this.prisma.order.create({
       data: {
         customerId,
         serviceId: dto.serviceId,
         startValue: dto.startValue,
         targetValue: dto.targetValue,
-        totalPrice: dto.totalPrice,
+        totalPrice: finalPrice,
         additions: dto.additions || [],
+        promoCodeId,
+        discount,
       },
       include: {
         service: { include: { gameCategory: true } },
@@ -262,6 +287,57 @@ export class OrdersService {
   }
 
   /**
+   * Оценить бустера (CUSTOMER, только COMPLETED, только один раз)
+   */
+  async rateOrder(orderId: number, customerId: number, rating: number) {
+    // Валидация оценки
+    if (rating < 1 || rating > 5 || !Number.isInteger(rating)) {
+      throw new BadRequestException('Rating must be integer from 1 to 5');
+    }
+
+    const order = await this.prisma.order.findUnique({
+      where: { id: orderId },
+    });
+
+    if (!order) throw new NotFoundException('Order not found');
+
+    // Только покупатель может оценить
+    if (order.customerId !== customerId) {
+      throw new ForbiddenException('Not your order');
+    }
+
+    // Только завершённые заказы
+    if (order.status !== OrderStatus.COMPLETED) {
+      throw new BadRequestException('Can only rate completed orders');
+    }
+
+    // Защита от двойной оценки
+    if (order.rating !== null) {
+      throw new BadRequestException('Order already rated');
+    }
+
+    // Нужен работник для обновления рейтинга
+    if (!order.workerId) {
+      throw new BadRequestException('No worker assigned');
+    }
+
+    // Сохраняем оценку в заказе
+    const updated = await this.prisma.order.update({
+      where: { id: orderId },
+      data: { rating },
+    });
+
+    // Обновляем средний рейтинг работника
+    this.eventEmitter.emit('order.rated', {
+      orderId,
+      workerId: order.workerId,
+      rating,
+    });
+
+    return this.serialize(updated);
+  }
+
+  /**
    * Валидация переходов статусов
    */
   private validateStatusTransition(
@@ -296,9 +372,11 @@ export class OrdersService {
       };
     }
     if (result.worker) {
+      // Анонимизируем бустера — покупатель не видит username/имя
       result.worker = {
-        ...result.worker,
-        telegramId: result.worker.telegramId.toString(),
+        id: result.worker.id,
+        rating: result.worker.rating,
+        completedCount: result.worker.completedCount,
       };
     }
 

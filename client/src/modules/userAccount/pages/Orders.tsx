@@ -89,7 +89,7 @@ const Orders = () => {
       ) : (
         <div className='space-y-2'>
           {orders.map(order => (
-            <OrderBaseTemplate key={order.id} order={order} />
+            <OrderBaseTemplate key={order.id} order={order} onUpdate={fetchOrders} />
           ))}
         </div>
       )}

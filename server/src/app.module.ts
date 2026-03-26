@@ -6,14 +6,14 @@ import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { OrdersModule } from './orders/orders.module';
 import { ServicesModule } from './services/services.module';
+import { ReviewsModule } from './reviews/reviews.module';
 import { TelegramBotModule } from './telegram-bot/telegram-bot.module';
+import { PaymentsModule } from './payments/payments.module';
 
 @Module({
   imports: [
-    // Event system for Orders ↔ Bot communication
     EventEmitterModule.forRoot(),
 
-    // Rate limiting: 10 requests per 60 seconds by default
     ThrottlerModule.forRoot({
       throttlers: [
         {
@@ -29,6 +29,7 @@ import { TelegramBotModule } from './telegram-bot/telegram-bot.module';
     UsersModule,
     OrdersModule,
     ServicesModule,
+    ReviewsModule,
     TelegramBotModule,
   ],
 })
