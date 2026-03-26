@@ -1,8 +1,12 @@
 import { Account } from "../modules/userAccount"
 import { BgShining } from "../shared/ui/BackgroundShining"
+import { SEO } from "../core/components/SEO"
+import { SEO_CONFIG } from "../core/config/seo.config"
+
 const AccountRoute = () => {
   return (
     <div className='relative w-full max-w-[1720px]'>
+      <SEO {...SEO_CONFIG.account} />
       <BgShining
         top='top-0'
         left='left-[-250px] max-md:left-[-150px]'

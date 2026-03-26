@@ -1,32 +1,24 @@
 import { create, type StateCreator } from "zustand"
 import { createJSONStorage, devtools, persist } from "zustand/middleware"
 import { immer } from "zustand/middleware/immer"
-import { CalculatorData as ranks } from "../data/CalculatorData"
-import { type Rank } from "../types"
+import { MIN_RATING, MAX_RATING, getRankByRating, type RankTiers } from "../data/CalculatorData"
+import { type RankTier } from "../types"
 
 interface IActions {
-  handleSelectFirstRank: (firstSelectRank: Rank) => void
-  handleSelectSecondRank: (secondSelectRank: Rank) => void
-  setIsOpenFirst: (isOpenFirst: boolean) => void
-  setIsOpenSecond: (isOpenSecond: boolean) => void
+  setStartRating: (rating: number) => void
+  setTargetRating: (rating: number) => void
 }
 
 interface IInitialState {
-  firstSelectRank: Rank | null
-  secondSelectRank: Rank | null
-  isOpenFirst: boolean
-  isOpenSecond: boolean
-  ranks: Rank[]
+  startRating: number
+  targetRating: number
 }
 
 interface ICalcSelectionsStore extends IActions, IInitialState {}
 
 const initialState: IInitialState = {
-  firstSelectRank: null,
-  secondSelectRank: null,
-  isOpenFirst: false,
-  isOpenSecond: false,
-  ranks: ranks,
+  startRating: 0,
+  targetRating: 0,
 }
 
 const SelectsStore: StateCreator<
@@ -34,41 +26,25 @@ const SelectsStore: StateCreator<
   [["zustand/immer", never], ["zustand/devtools", never], ["zustand/persist", unknown]]
 > = set => ({
   ...initialState,
-  handleSelectFirstRank: (rank: Rank) =>
-    set(
-      {
-        firstSelectRank: rank,
-        secondSelectRank: null,
-        isOpenFirst: false,
-        isOpenSecond: false,
-      },
-      false,
-      "handleSelectFirstRank"
-    ),
-  handleSelectSecondRank: (rank: Rank) =>
-    set(
-      {
-        secondSelectRank: rank,
-        isOpenSecond: false,
-      },
-      false,
-      "handleSelectSecondRank"
-    ),
-  setIsOpenFirst: (isOpenFirst: boolean) =>
+  setStartRating: (rating: number) =>
     set(
       state => {
-        state.isOpenFirst = isOpenFirst
+        state.startRating = Math.max(MIN_RATING, Math.min(MAX_RATING, rating))
+        // Если начальный стал >= конечного, сбрасываем конечный
+        if (state.startRating >= state.targetRating) {
+          state.targetRating = 0
+        }
       },
       false,
-      "setIsOpenFirst"
+      "setStartRating"
     ),
-  setIsOpenSecond: (isOpenSecond: boolean) =>
+  setTargetRating: (rating: number) =>
     set(
       state => {
-        state.isOpenSecond = isOpenSecond
+        state.targetRating = Math.max(MIN_RATING, Math.min(MAX_RATING, rating))
       },
       false,
-      "setIsOpenSecond"
+      "setTargetRating"
     ),
 })
 
@@ -79,29 +55,30 @@ const useSelectsStore = create<ICalcSelectionsStore>()(
         name: "selects-storage",
         storage: createJSONStorage(() => localStorage),
         partialize: state => ({
-          firstSelectRank: state.firstSelectRank,
-          secondSelectRank: state.secondSelectRank,
-          ranks: state.ranks,
+          startRating: state.startRating,
+          targetRating: state.targetRating,
         }),
       })
     )
   )
 )
-export const useRanks = () => useSelectsStore(state => state.ranks)
 
-export const useFirstSelectedRank = () => useSelectsStore(state => state.firstSelectRank)
+// ─── Селекторы ───
+export const useStartRating = () => useSelectsStore(state => state.startRating)
+export const useTargetRating = () => useSelectsStore(state => state.targetRating)
 
-export const useSecondSelectedRank = () => useSelectsStore(state => state.secondSelectRank)
+// Производные — ранг по рейтингу
+export const useStartRank = (): RankTier | null => {
+  const rating = useSelectsStore(state => state.startRating)
+  return rating > 0 ? getRankByRating(rating) : null
+}
+export const useTargetRank = (): RankTier | null => {
+  const rating = useSelectsStore(state => state.targetRating)
+  return rating > 0 ? getRankByRating(rating) : null
+}
 
-export const useIsOpenFirst = () => useSelectsStore(state => state.isOpenFirst)
-
-export const useIsOpenSecond = () => useSelectsStore(state => state.isOpenSecond)
-
-export const handleSelectFirstRank = (rank: Rank) =>
-  useSelectsStore.getState().handleSelectFirstRank(rank)
-export const handleSelectSecondRank = (rank: Rank) =>
-  useSelectsStore.getState().handleSelectSecondRank(rank)
-export const setIsOpenFirst = (isOpenFirst: boolean) =>
-  useSelectsStore.getState().setIsOpenFirst(isOpenFirst)
-export const setIsOpenSecond = (isOpenSecond: boolean) =>
-  useSelectsStore.getState().setIsOpenSecond(isOpenSecond)
+// ─── Экшены ───
+export const setStartRating = (rating: number) =>
+  useSelectsStore.getState().setStartRating(rating)
+export const setTargetRating = (rating: number) =>
+  useSelectsStore.getState().setTargetRating(rating)

@@ -1,4 +1,17 @@
+/**
+ * HeaderNavBarData — обновлённые данные навигации.
+ *
+ * БЫЛО:
+ *   Desktop: Услуги, О нас, Личный кабинет
+ *   Mobile:  Главная, Услуги, О нас, Личный кабинет
+ *
+ * СТАЛО:
+ *   Desktop: Услуги, О нас (кнопка Войти/аватар отдельно в Header.tsx)
+ *   Mobile:  Главная, Услуги, О нас (Войти/Аккаунт добавляется динамически)
+ */
+
 import { routes } from "../../../app/config/routes"
+
 interface HeaderDataInterface {
   title: string
   link: string
@@ -12,10 +25,6 @@ export const HeaderNavBarData: HeaderDataInterface[] = [
   {
     title: "О нас",
     link: routes.aboutus,
-  },
-  {
-    title: "Личный кабинет",
-    link: routes.account,
   },
 ]
 
@@ -31,9 +40,5 @@ export const HeaderBurgerMenuData: HeaderDataInterface[] = [
   {
     title: "О нас",
     link: routes.aboutus,
-  },
-  {
-    title: "Личный кабинет",
-    link: routes.account,
   },
 ]

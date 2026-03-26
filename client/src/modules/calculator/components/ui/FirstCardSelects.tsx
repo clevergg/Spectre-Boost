@@ -1,46 +1,37 @@
-import { useState } from "react"
+/**
+ * FirstCardSelects — обновлённый.
+ *
+ * БЫЛО: две кнопки которые открывали модалку с выбором ранга из списка
+ * СТАЛО: два числовых инпута для ввода рейтинга
+ */
+
+import { RatingInput } from "../RatingInput"
 import {
-  setIsOpenFirst,
-  setIsOpenSecond,
-  useFirstSelectedRank,
-  useSecondSelectedRank,
+  useStartRating,
+  useTargetRating,
+  setStartRating,
+  setTargetRating,
 } from "../../store/CalculatorSelectedStore"
-import { SelectsModal } from "../SelectsModal"
-import { SelectCardTemplate } from "./SelectCardTemplate"
 
 export const FirstCardSelects = () => {
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
-  const handleChangeIsModalOpen = () => {
-    setIsModalOpen(prev => !prev)
-    setIsOpenFirst(false)
-    setIsOpenSecond(false)
-  }
-  const selectedRankFirst = useFirstSelectedRank()
-  const selectedRankSecond = useSecondSelectedRank()
-  const id1 = 1
-  const id2 = 2
-  const isDisabled = id2 && !selectedRankFirst
-  return (
-    <>
-      <div className='flex max-sm:flex-col gap-3 justify-around'>
-        <div className='relative w-full'>
-          <SelectCardTemplate
-            id={id1}
-            selectedRank={selectedRankFirst}
-            onClickCard={handleChangeIsModalOpen}
-          />
-        </div>
+  const startRating = useStartRating()
+  const targetRating = useTargetRating()
 
-        <div className='relative w-full'>
-          <SelectCardTemplate
-            id={id2}
-            selectedRank={selectedRankSecond}
-            onClickCard={handleChangeIsModalOpen}
-            isDisabled={isDisabled}
-          />
-        </div>
-      </div>
-      <SelectsModal isModalOpen={isModalOpen} handleChangeIsModalOpen={handleChangeIsModalOpen} />
-    </>
+  return (
+    <div className='flex flex-col gap-3'>
+      <RatingInput
+        label='Текущий рейтинг'
+        placeholder='Например: 1200'
+        value={startRating}
+        onChange={setStartRating}
+      />
+      <RatingInput
+        label='Желаемый рейтинг'
+        placeholder='Например: 2500'
+        value={targetRating}
+        onChange={setTargetRating}
+        min={startRating > 0 ? startRating + 1 : 0}
+      />
+    </div>
   )
 }

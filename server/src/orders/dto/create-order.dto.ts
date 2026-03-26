@@ -2,6 +2,7 @@ import {
   IsInt,
   IsOptional,
   IsArray,
+  IsString,
   Min,
   IsPositive,
 } from 'class-validator';
@@ -33,4 +34,8 @@ export class CreateOrderDto {
     title: string;
     koef: number;
   }>;
+
+  @IsString()
+  @IsOptional()
+  promoCode?: string;
 }

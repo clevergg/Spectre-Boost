@@ -16,6 +16,7 @@ export interface Order {
   createdAt: string
   assignedAt: string | null
   completedAt: string | null
+  rating: number | null       // оценка бустера (1-5, null = не оценено)
   service: {
     id: number
     name: string
@@ -30,11 +31,11 @@ export interface Order {
   }
   worker: {
     id: number
-    username: string | null
-    firstName: string | null
     rating: number
     completedCount: number
   } | null
+  rating: number | null        // оценка покупателя 1-5
+  discount: number | null      // скидка по промокоду
 }
 
 export interface CreateOrderData {
@@ -43,6 +44,7 @@ export interface CreateOrderData {
   targetValue?: number
   totalPrice: number
   additions?: Array<{ id: number; title: string; koef: number }>
+  promoCode?: string
 }
 
 // ─── API функции ───
