@@ -21,7 +21,6 @@ export const ShowPrice = ({ promo }: ShowPriceProps) => {
   const targetRating = useTargetRating()
   const isAuthenticated = useIsAuthenticated()
   const [isProcessing, setIsProcessing] = useState(false)
-  const [paymentMethod, setPaymentMethod] = useState<"sbp" | "bank_card">("sbp")
 
   const discountedAmount = promo
     ? Math.round(amount * (1 - promo.discount / 100))
@@ -52,8 +51,8 @@ export const ShowPrice = ({ promo }: ShowPriceProps) => {
         promoCode: promo?.code,
       })
 
-      // 2. Создаём платёж и редиректим на оплату
-      const payment = await createPayment(order.id, paymentMethod)
+      // 2. Создаём платёж и редиректим на YooKassa
+      const payment = await createPayment(order.id)
 
       if (payment.paymentUrl) {
         window.location.href = payment.paymentUrl
@@ -70,7 +69,6 @@ export const ShowPrice = ({ promo }: ShowPriceProps) => {
 
   return (
     <div className='flex flex-col items-center px-5 pb-6 gap-3'>
-      {/* Цена */}
       <div className='text-center'>
         {promo && amount > 0 ? (
           <>
@@ -90,32 +88,6 @@ export const ShowPrice = ({ promo }: ShowPriceProps) => {
           </p>
         )}
       </div>
-
-      {/* Выбор метода оплаты */}
-      {amount > 0 && isAuthenticated && (
-        <div className='flex gap-2 w-full'>
-          <button
-            onClick={() => setPaymentMethod("sbp")}
-            className={`flex-1 py-2 rounded-lg font-gilroy text-[clamp(0.85rem,0.95vw,0.95rem)] transition-all ${
-              paymentMethod === "sbp"
-                ? "bg-white/15 text-white border border-white/30"
-                : "bg-white/5 text-white/50 border border-transparent"
-            }`}
-          >
-            СБП
-          </button>
-          <button
-            onClick={() => setPaymentMethod("bank_card")}
-            className={`flex-1 py-2 rounded-lg font-gilroy text-[clamp(0.85rem,0.95vw,0.95rem)] transition-all ${
-              paymentMethod === "bank_card"
-                ? "bg-white/15 text-white border border-white/30"
-                : "bg-white/5 text-white/50 border border-transparent"
-            }`}
-          >
-            Карта
-          </button>
-        </div>
-      )}
 
       <button
         onClick={handleOrder}
