@@ -16,7 +16,6 @@ export interface Order {
   createdAt: string
   assignedAt: string | null
   completedAt: string | null
-  rating: number | null       // оценка бустера (1-5, null = не оценено)
   service: {
     id: number
     name: string
@@ -34,8 +33,8 @@ export interface Order {
     rating: number
     completedCount: number
   } | null
-  rating: number | null        // оценка покупателя 1-5
-  discount: number | null      // скидка по промокоду
+  rating: number | null
+  discount: number | null
 }
 
 export interface CreateOrderData {
@@ -62,7 +61,6 @@ export async function createOrder(data: CreateOrderData): Promise<Order> {
 
 /**
  * Получить мои заказы.
- * Заменяет хардкод из OrdersData.tsx.
  */
 export async function getMyOrders(): Promise<Order[]> {
   return apiClient<Order[]>("/orders")

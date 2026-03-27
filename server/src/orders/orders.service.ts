@@ -39,6 +39,8 @@ export class OrdersService {
 
   /**
    * Создать заказ (CUSTOMER)
+   * После создания заказ ожидает оплату (paymentStatus = PENDING).
+   * Бустера ищем только после оплаты — в payments.service.ts → handlePaymentSuccess().
    */
   async create(customerId: number, dto: CreateOrderDto) {
     // Проверяем что услуга существует
@@ -93,11 +95,9 @@ export class OrdersService {
 
     this.logger.log(`Order #${order.id} created by user #${customerId}`);
 
-    // Отправляем событие — бот подхватит
-    this.eventEmitter.emit(
-      'order.created',
-      new OrderCreatedEvent(order.id, customerId, dto.serviceId),
-    );
+    // НЕ вызываем order.created здесь!
+    // Бустера ищем только после оплаты.
+    // Event вызывается в payments.service.ts → handlePaymentSuccess()
 
     return this.serialize(order);
   }
@@ -266,6 +266,7 @@ export class OrdersService {
         orderId,
         OrderStatus.PENDING,
         OrderStatus.CANCELLED,
+        customerId,
       ),
     );
 
@@ -273,7 +274,7 @@ export class OrdersService {
   }
 
   /**
-   * Сохранить ID сообщения бота (для последующего редактирования)
+   * Сохранить ID сообщения бота (для редактирования)
    */
   async saveBotMessageId(
     orderId: number,
@@ -287,12 +288,11 @@ export class OrdersService {
   }
 
   /**
-   * Оценить бустера (CUSTOMER, только COMPLETED, только один раз)
+   * Оценить заказ (CUSTOMER)
    */
   async rateOrder(orderId: number, customerId: number, rating: number) {
-    // Валидация оценки
-    if (rating < 1 || rating > 5 || !Number.isInteger(rating)) {
-      throw new BadRequestException('Rating must be integer from 1 to 5');
+    if (rating < 1 || rating > 5) {
+      throw new BadRequestException('Rating must be between 1 and 5');
     }
 
     const order = await this.prisma.order.findUnique({
@@ -300,13 +300,9 @@ export class OrdersService {
     });
 
     if (!order) throw new NotFoundException('Order not found');
-
-    // Только покупатель может оценить
     if (order.customerId !== customerId) {
       throw new ForbiddenException('Not your order');
     }
-
-    // Только завершённые заказы
     if (order.status !== OrderStatus.COMPLETED) {
       throw new BadRequestException('Can only rate completed orders');
     }
