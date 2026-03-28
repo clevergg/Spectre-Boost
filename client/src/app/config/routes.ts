@@ -1,7 +1,8 @@
 class Routes {
   home = "/"
   services = "/services"
-  topfifty = `/survivor`
+  survivor = "/survivor"
+
   aboutus = "/aboutus"
   account = "/account"
   accountSettings = "/account/settings"

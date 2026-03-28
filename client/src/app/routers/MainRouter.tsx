@@ -19,7 +19,8 @@ const HomePage = lazy(() => import("../../pages/HomeRoute"))
 const ServicesPage = lazy(() => import("../../pages/ServicesRoute"))
 const AboutUsPage = lazy(() => import("../../pages/AboutUsRoute"))
 const AccountPage = lazy(() => import("../../pages/AccountRoute"))
-const TopfiftyPage = lazy(() => import("../../pages/ServicesTopFifty"))
+const SurvivorPage = lazy(() => import("../../pages/SurvivorRoute"))
+
 
 /**
  * Компонент внутри Router — вызывает хуки зависящие от роутера
@@ -40,8 +41,8 @@ export const MainRouter = () => {
             <Route index element={<HomePage />} />
             <Route path={routes.services} element={<ServicesPage />} />
             <Route path={routes.aboutus} element={<AboutUsPage />} />
-            <Route path={routes.topfifty} element={<TopfiftyPage />} />
-          </Route>
+            <Route path={routes.survivor} element={<SurvivorPage />} />
+
 
           {/* Защищённые роуты — требуют авторизации */}
           <Route

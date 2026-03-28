@@ -1,11 +1,10 @@
 /**
  * Конфигурация SEO для каждой страницы.
- * Импортируется в page-компонентах.
  */
 
 export const SEO_CONFIG = {
   home: {
-    title: undefined, // Используется дефолтный: "Spectre Boost — Буст рейтинга PUBG"
+    title: undefined,
     description:
       "Spectre Boost — профессиональный буст рейтинга в PUBG. Повышение ранга от Бронзы до Мастера. Безопасно, анонимно, с гарантией результата.",
     keywords:
@@ -19,6 +18,14 @@ export const SEO_CONFIG = {
     keywords:
       "калькулятор буста PUBG, цена буста PUBG, стоимость прокачки ранга, буст ранга цена",
     canonical: "https://spectreboost.com/services",
+  },
+  survivor: {
+    title: "Выживший — Топ 50",
+    description:
+      "Буст в Топ 50 PUBG. Полный надзор ранга до конца сезона или разовый буст до целевых ПТС. Анонимно, с гарантией результата.",
+    keywords:
+      "топ 50 PUBG, выживший PUBG, буст топ 50, буст ПТС PUBG, Spectre Boost топ 50, прокачка топ 50",
+    canonical: "https://spectreboost.com/survivor",
   },
   aboutus: {
     title: "О нас",

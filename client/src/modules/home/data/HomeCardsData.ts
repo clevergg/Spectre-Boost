@@ -7,7 +7,7 @@ interface HomeCardsDataInterface {
   buttonText: string
   image: string
   soon?: boolean
-  aria?: "topfifty" | "boost" | "medals"
+  aria?: "survivor" | "boost" | "medals"
 }
 
 export const HomeCardsData: HomeCardsDataInterface[] = [
@@ -31,10 +31,10 @@ export const HomeCardsData: HomeCardsDataInterface[] = [
   },
   {
     id: 3,
-    title: "Буст топ 50",
-    aria: "topfifty",
+    title: "Выживший — Топ 50",
+    aria: "survivor",
     description:
-      "Попадание в топ 50 сервера - без гринда и бессонных ночей. Быстро и с гарантией результата.",
+      "Попадание в топ 50 сервера — без гринда и бессонных ночей. Быстро и с гарантией результата.",
     buttonText: "Заказать буст топ 50",
     image: spectreLogo,
   },

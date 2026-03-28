@@ -1,10 +1,4 @@
-/**
- * Orders API — CRUD заказов.
- */
-
 import { apiClient } from "./client"
-
-// ─── Типы ───
 
 export interface Order {
   id: number
@@ -44,14 +38,10 @@ export interface CreateOrderData {
   totalPrice: number
   additions?: Array<{ id: number; title: string; koef: number }>
   promoCode?: string
+  orderType?: "BOOST" | "SURVIVOR_FULL" | "SURVIVOR_PTS"
+  targetPts?: number
 }
 
-// ─── API функции ───
-
-/**
- * Создать заказ.
- * Вызывается когда покупатель нажимает "Оплатить" в калькуляторе.
- */
 export async function createOrder(data: CreateOrderData): Promise<Order> {
   return apiClient<Order>("/orders", {
     method: "POST",
@@ -59,23 +49,14 @@ export async function createOrder(data: CreateOrderData): Promise<Order> {
   })
 }
 
-/**
- * Получить мои заказы.
- */
 export async function getMyOrders(): Promise<Order[]> {
   return apiClient<Order[]>("/orders")
 }
 
-/**
- * Получить детали заказа.
- */
 export async function getOrderById(id: number): Promise<Order> {
   return apiClient<Order>(`/orders/${id}`)
 }
 
-/**
- * Отменить заказ (только PENDING).
- */
 export async function cancelOrder(id: number): Promise<Order> {
   return apiClient<Order>(`/orders/${id}`, {
     method: "DELETE",

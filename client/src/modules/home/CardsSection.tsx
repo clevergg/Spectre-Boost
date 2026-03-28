@@ -6,8 +6,8 @@ import { routes } from "../../app/config/routes"
 
 export const CardsSection = () => {
   const navigate = useNavigate()
-  const handleNavigateToTopfifty = () => {
-    navigate(routes.topfifty)
+  const handleNavigateToSurvivor = () => {
+    navigate(routes.survivor)
   }
   return (
     <section className='w-full mb-30 font-unbounded'>
@@ -15,7 +15,9 @@ export const CardsSection = () => {
         {cardData.map((card, index) => (
           <article
             key={index}
-            className={`bg-black w-full flex flex-col relative rounded-2xl shadow-lg transition-all ease-in-out duration-500 border border-gray hover:border-pink-gradient2 group hover:scale-105 p-5 gap-3 justify-self-center z-1 text-center`}
+            className={`bg-black w-full flex flex-col relative rounded-2xl shadow-lg transition-all ease-in-out duration-500 border border-gray ${
+              card.soon ? "opacity-60" : "hover:border-pink-gradient2 group hover:scale-105"
+            } p-5 gap-3 justify-self-center z-1 text-center`}
           >
             <div>
               <img
@@ -35,19 +37,21 @@ export const CardsSection = () => {
               </p>
             </div>
 
-            <GradientButton
-              onClick={card.aria === "topfifty" ? handleNavigateToTopfifty : undefined}
-              type='cardsNavigate'
-              className='px-5 py-2.5 flex items-center mt-auto justify-center gap-5'
-            >
-              {card.soon ? (
-                <p>Будет в скором времени</p>
-              ) : (
-                <>
-                  {card.buttonText} <FaCircleArrowRight className='w-[30px] h-[30px]' />
-                </>
-              )}
-            </GradientButton>
+            {card.soon ? (
+              <div className='px-5 py-2.5 mt-auto rounded-xl border border-gray-700'>
+                <p className='text-gray-500 font-gilroy text-[clamp(0.9rem,1.1vw,1.1rem)]'>
+                  Скоро
+                </p>
+              </div>
+            ) : (
+              <GradientButton
+                onClick={card.aria === "survivor" ? handleNavigateToSurvivor : undefined}
+                type='cardsNavigate'
+                className='px-5 py-2.5 flex items-center mt-auto justify-center gap-5'
+              >
+                {card.buttonText} <FaCircleArrowRight className='w-[30px] h-[30px]' />
+              </GradientButton>
+            )}
           </article>
         ))}
       </div>
