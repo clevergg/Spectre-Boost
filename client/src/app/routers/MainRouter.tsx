@@ -21,6 +21,7 @@ const AboutUsPage = lazy(() => import("../../pages/AboutUsRoute"))
 const AccountPage = lazy(() => import("../../pages/AccountRoute"))
 const SurvivorPage = lazy(() => import("../../pages/SurvivorRoute"))
 
+
 /**
  * Компонент внутри Router — вызывает хуки зависящие от роутера
  */
@@ -41,7 +42,7 @@ export const MainRouter = () => {
             <Route path={routes.services} element={<ServicesPage />} />
             <Route path={routes.aboutus} element={<AboutUsPage />} />
             <Route path={routes.survivor} element={<SurvivorPage />} />
-          </Route>
+
 
           {/* Защищённые роуты — требуют авторизации */}
           <Route
