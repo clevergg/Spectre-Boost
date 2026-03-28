@@ -20,9 +20,7 @@ import { GradientButton } from "../../../shared/ui/GradientButton"
 import { handleChangeIsModalClick, useIsModalOpen } from "../store/HeaderStore"
 import { TelegramLoginWidget } from "./TelegramLoginWidget"
 
-const CreatePortalModal = lazy(
-  () => import("../../../shared/ui/CreatePortalModal")
-)
+const CreatePortalModal = lazy(() => import("../../../shared/ui/CreatePortalModal"))
 
 export function AuthorizationModalHeader() {
   const isModalOpen = useIsModalOpen()
@@ -34,10 +32,7 @@ export function AuthorizationModalHeader() {
   }, [isModalOpen])
 
   return (
-    <CreatePortalModal
-      isOpen={isModalOpen}
-      onClose={() => handleChangeIsModalClick(false)}
-    >
+    <CreatePortalModal isOpen={isModalOpen} onClose={() => handleChangeIsModalClick(false)}>
       <h2 className='text-[20px] tracking-wider text-white font-unbounded font-bold mb-4'>
         Вход через Telegram
       </h2>
@@ -53,11 +48,9 @@ export function AuthorizationModalHeader() {
 
       <GradientButton
         onClick={() => handleChangeIsModalClick(false)}
-        className='px-5 py-2.5 rounded-4xl'
+        className='px-6 py-2.5 rounded-4xl'
       >
-        <span className='font-Montserrat text-[16px]/[20px] font-normal'>
-          Закрыть
-        </span>
+        <p className='text-center font-Montserrat font-normal'>Закрыть</p>
       </GradientButton>
     </CreatePortalModal>
   )

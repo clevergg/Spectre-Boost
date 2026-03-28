@@ -10,11 +10,8 @@ export const SecondCardAdditionsList = () => {
 
   return (
     <ul className='w-full px-5 grid grid-cols-1 gap-3'>
-      {additions.map((item) => (
-        <li
-          key={item.id}
-          className='flex items-center gap-4 min-h-[30px]'
-        >
+      {additions.map(item => (
+        <li key={item.id} className='flex items-center gap-4 min-h-[30px]'>
           <p
             className={`text-black px-3 py-1 rounded-4xl font-gilroy text-[13px] min-w-[70px] text-center shrink-0 ${
               item.isActive && item.koef > 0

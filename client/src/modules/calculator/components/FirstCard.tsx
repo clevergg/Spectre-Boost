@@ -1,6 +1,6 @@
 import { lazy } from "react"
 import { FirstCardAdditions } from "./FirstCardAdditions"
-import { FirstCardSelects } from "./ui/FirstCardSelects"
+import { FirstCardInputs } from "./ui/FirstCardInputs"
 import { FirstCardTitle } from "./ui/Titles"
 
 const TextType = lazy(() => import("../../../shared/ui/TextType"))
@@ -22,7 +22,7 @@ export const FirstCard = () => {
       </div>
       <div className='flex flex-col space-y-5 px-[calc(1rem+1vw)]'>
         <div className='flex flex-col space-y-5'>
-          <FirstCardSelects />
+          <FirstCardInputs />
           <FirstCardAdditions />
         </div>
       </div>

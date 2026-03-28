@@ -1,6 +1,6 @@
 import { twMerge } from "tailwind-merge"
 import { useNavigateToServices } from "../../core/hooks/useNavigates"
-import type { ReactNode } from 'react'
+import type { ReactNode } from "react"
 
 type Button = "singleNavigate" | "cardsNavigate" | "default"
 interface GradientButtonInterface {
@@ -30,7 +30,7 @@ export const GradientButton = ({ onClick, children, className, type }: GradientB
   }
 
   return (
-    <button onClick={handleClick} className={twMerge(basesClasses, className)}>
+    <button onClick={onClick ? onClick : handleClick} className={twMerge(basesClasses, className)}>
       {children}
     </button>
   )
