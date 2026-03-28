@@ -39,11 +39,9 @@ export class OrdersService {
 
   /**
    * Создать заказ (CUSTOMER)
-   * После создания заказ ожидает оплату (paymentStatus = PENDING).
-   * Бустера ищем только после оплаты — в payments.service.ts → handlePaymentSuccess().
+   * Заказ ожидает оплату. Бустера ищем после оплаты.
    */
   async create(customerId: number, dto: CreateOrderDto) {
-    // Проверяем что услуга существует
     const service = await this.prisma.service.findUnique({
       where: { id: dto.serviceId },
       include: { gameCategory: true },
@@ -53,7 +51,19 @@ export class OrdersService {
       throw new NotFoundException('Service not found');
     }
 
-    // Применяем промокод если есть
+    // Лимит: макс 5 неоплаченных заказов
+    const pendingCount = await this.prisma.order.count({
+      where: {
+        customerId,
+        paymentStatus: 'PENDING',
+      },
+    });
+
+    if (pendingCount >= 5) {
+      throw new BadRequestException('Too many unpaid orders. Please pay or cancel existing orders.');
+    }
+
+    // Применяем промокод
     let promoCodeId: number | null = null;
     let discount: number | null = null;
     let finalPrice = dto.totalPrice;
@@ -68,7 +78,6 @@ export class OrdersService {
         discount = promo.discount;
         finalPrice = Math.round(dto.totalPrice * (1 - promo.discount / 100));
 
-        // Увеличиваем счётчик использований
         await this.prisma.promoCode.update({
           where: { id: promo.id },
           data: { usageCount: { increment: 1 } },
@@ -95,17 +104,15 @@ export class OrdersService {
 
     this.logger.log(`Order #${order.id} created by user #${customerId}`);
 
-    // НЕ вызываем order.created здесь!
-    // Бустера ищем только после оплаты.
-    // Event вызывается в payments.service.ts → handlePaymentSuccess()
+    // Бустера ищем только после оплаты (payments.service.ts → handlePaymentSuccess)
 
     return this.serialize(order);
   }
 
   /**
-   * Список заказов покупателя
+   * Список заказов покупателя с пагинацией
    */
-  async findByCustomer(customerId: number) {
+  async findByCustomer(customerId: number, take: number = 20, skip: number = 0) {
     const orders = await this.prisma.order.findMany({
       where: { customerId },
       include: {
@@ -113,6 +120,8 @@ export class OrdersService {
         worker: true,
       },
       orderBy: { createdAt: 'desc' },
+      take,
+      skip,
     });
 
     return orders.map(this.serialize);
@@ -135,7 +144,6 @@ export class OrdersService {
       throw new NotFoundException('Order not found');
     }
 
-    // Проверка доступа: покупатель, работник или админ
     if (
       userRole !== 'ADMIN' &&
       order.customerId !== userId &&
@@ -148,7 +156,7 @@ export class OrdersService {
   }
 
   /**
-   * Назначить работника на заказ (вызывается ботом)
+   * Назначить работника на заказ
    */
   async assignWorker(orderId: number, workerId: number) {
     const order = await this.prisma.order.findUnique({
@@ -190,7 +198,7 @@ export class OrdersService {
   }
 
   /**
-   * Обновить статус заказа (WORKER/ADMIN)
+   * Обновить статус заказа
    */
   async updateStatus(
     orderId: number,
@@ -204,12 +212,10 @@ export class OrdersService {
 
     if (!order) throw new NotFoundException('Order not found');
 
-    // Проверка прав
     if (userRole !== 'ADMIN' && order.workerId !== userId) {
       throw new ForbiddenException('Only assigned worker or admin can update status');
     }
 
-    // Валидация переходов статусов
     this.validateStatusTransition(order.status, newStatus);
 
     const data: any = { status: newStatus };
@@ -227,9 +233,7 @@ export class OrdersService {
       },
     });
 
-    this.logger.log(
-      `Order #${orderId} status: ${order.status} → ${newStatus}`,
-    );
+    this.logger.log(`Order #${orderId} status: ${order.status} → ${newStatus}`);
 
     this.eventEmitter.emit(
       'order.status.changed',
@@ -274,7 +278,7 @@ export class OrdersService {
   }
 
   /**
-   * Сохранить ID сообщения бота (для редактирования)
+   * Сохранить ID сообщения бота
    */
   async saveBotMessageId(
     orderId: number,
@@ -288,11 +292,11 @@ export class OrdersService {
   }
 
   /**
-   * Оценить заказ (CUSTOMER)
+   * Оценить бустера (CUSTOMER)
    */
   async rateOrder(orderId: number, customerId: number, rating: number) {
-    if (rating < 1 || rating > 5) {
-      throw new BadRequestException('Rating must be between 1 and 5');
+    if (rating < 1 || rating > 5 || !Number.isInteger(rating)) {
+      throw new BadRequestException('Rating must be integer from 1 to 5');
     }
 
     const order = await this.prisma.order.findUnique({
@@ -306,24 +310,18 @@ export class OrdersService {
     if (order.status !== OrderStatus.COMPLETED) {
       throw new BadRequestException('Can only rate completed orders');
     }
-
-    // Защита от двойной оценки
     if (order.rating !== null) {
       throw new BadRequestException('Order already rated');
     }
-
-    // Нужен работник для обновления рейтинга
     if (!order.workerId) {
       throw new BadRequestException('No worker assigned');
     }
 
-    // Сохраняем оценку в заказе
     const updated = await this.prisma.order.update({
       where: { id: orderId },
       data: { rating },
     });
 
-    // Обновляем средний рейтинг работника
     this.eventEmitter.emit('order.rated', {
       orderId,
       workerId: order.workerId,
@@ -333,13 +331,7 @@ export class OrdersService {
     return this.serialize(updated);
   }
 
-  /**
-   * Валидация переходов статусов
-   */
-  private validateStatusTransition(
-    current: OrderStatus,
-    next: OrderStatus,
-  ): void {
+  private validateStatusTransition(current: OrderStatus, next: OrderStatus): void {
     const allowed: Record<OrderStatus, OrderStatus[]> = {
       PENDING: [OrderStatus.ASSIGNED, OrderStatus.CANCELLED],
       ASSIGNED: [OrderStatus.IN_PROGRESS, OrderStatus.CANCELLED],
@@ -349,15 +341,10 @@ export class OrdersService {
     };
 
     if (!allowed[current]?.includes(next)) {
-      throw new BadRequestException(
-        `Cannot transition from ${current} to ${next}`,
-      );
+      throw new BadRequestException(`Cannot transition from ${current} to ${next}`);
     }
   }
 
-  /**
-   * Сериализация (BigInt → string)
-   */
   private serialize(order: any) {
     const result = { ...order };
 
@@ -368,7 +355,6 @@ export class OrdersService {
       };
     }
     if (result.worker) {
-      // Анонимизируем бустера — покупатель не видит username/имя
       result.worker = {
         id: result.worker.id,
         rating: result.worker.rating,

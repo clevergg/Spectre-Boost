@@ -7,17 +7,40 @@ import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { TransformInterceptor } from './common/interceptors/transform.interceptor';
 
 async function bootstrap() {
+  // ─── Валидация критических переменных окружения ───
+  const requiredEnvVars = ['JWT_SECRET', 'BOT_TOKEN', 'DATABASE_URL'];
+  for (const envVar of requiredEnvVars) {
+    if (!process.env[envVar]) {
+      console.error(`❌ FATAL: ${envVar} is not set in .env`);
+      process.exit(1);
+    }
+  }
+
+  if (process.env.JWT_SECRET === 'default-secret-change-me') {
+    console.error('❌ FATAL: JWT_SECRET is set to default value. Change it!');
+    process.exit(1);
+  }
+
+  if (process.env.JWT_SECRET!.length < 32) {
+    console.error('❌ FATAL: JWT_SECRET must be at least 32 characters long');
+    process.exit(1);
+  }
+
   const app = await NestFactory.create(AppModule);
 
-  // Cookie parser — без него req.cookies будет undefined
+  // Cookie parser
   app.use(cookieParser());
 
-  // CORS — ДОЛЖЕН быть ДО helmet
+  // CORS
   const allowedOrigins = (process.env.FRONTEND_URL || 'http://localhost:5173')
     .split(',')
     .map((url) => url.trim().replace(/\/+$/, ''));
 
-  console.log('🔒 Allowed CORS origins:', allowedOrigins);
+  const isProduction = process.env.NODE_ENV === 'production';
+
+  if (!isProduction) {
+    console.log('🔒 Allowed CORS origins:', allowedOrigins);
+  }
 
   app.enableCors({
     origin: allowedOrigins,
@@ -26,19 +49,20 @@ async function bootstrap() {
     allowedHeaders: ['Content-Type', 'Authorization'],
   });
 
-  // Helmet ПОСЛЕ CORS — иначе может блокировать preflight
+  // Helmet с CSP
   app.use(
     helmet({
       crossOriginResourcePolicy: { policy: 'cross-origin' },
+      contentSecurityPolicy: isProduction ? undefined : false,
     }),
   );
 
   // Global pipes
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: true,           // Strip unknown properties
-      forbidNonWhitelisted: true, // Throw on unknown properties
-      transform: true,           // Auto-transform types
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
     }),
   );
 

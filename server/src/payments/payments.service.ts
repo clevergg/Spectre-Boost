@@ -1,19 +1,10 @@
 /**
  * PaymentsService — интеграция с YooKassa.
  *
- * Flow оплаты:
- * 1. Покупатель нажимает "Оформить заказ" на сайте
- * 2. Фронт → POST /api/payments/create → создаёт заказ + платёж в YooKassa
- * 3. YooKassa возвращает confirmation_url → фронт редиректит юзера
- * 4. Юзер оплачивает (карта / СБП / YooMoney)
- * 5. YooKassa шлёт webhook → POST /api/payments/webhook
- * 6. Бэкенд проверяет подпись, меняет статус заказа на PAID
- * 7. Бот уведомляет покупателя и ищет бустера
- *
- * .env:
- *   YOOKASSA_SHOP_ID=123456
- *   YOOKASSA_SECRET_KEY=live_xxx или test_xxx
- *   YOOKASSA_RETURN_URL=https://spectreboost.com/account
+ * Фиксы безопасности:
+ * - Проверка владельца заказа при создании платежа
+ * - Проверка суммы оплаты в webhook (совпадает с totalPrice)
+ * - IP-фильтрация в controller
  */
 
 import {
@@ -21,6 +12,7 @@ import {
   Logger,
   BadRequestException,
   NotFoundException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { EventEmitter2 } from '@nestjs/event-emitter';
@@ -58,12 +50,12 @@ export class PaymentsService {
   }
 
   /**
-   * Создать платёж в YooKassa.
-   * Возвращает URL для редиректа юзера на страницу оплаты.
+   * Создать платёж. Проверяем что заказ принадлежит юзеру.
    */
   async createPayment(
     orderId: number,
-    _amount: number, // игнорируется — берём из заказа
+    userId: number,
+    userRole: string,
     description: string,
     paymentMethod?: string,
   ): Promise<{ paymentUrl: string; paymentId: string }> {
@@ -72,13 +64,17 @@ export class PaymentsService {
     });
 
     if (!order) throw new NotFoundException('Order not found');
+
+    // Проверка владельца — только свой заказ (или админ)
+    if (userRole !== 'ADMIN' && order.customerId !== userId) {
+      throw new ForbiddenException('Not your order');
+    }
+
     if (order.paymentStatus === 'PAID') {
       throw new BadRequestException('Order already paid');
     }
 
     const amount = order.totalPrice;
-
-    // Идемпотентный ключ — предотвращает двойную оплату
     const idempotencyKey = crypto.randomUUID();
 
     const body: any = {
@@ -90,14 +86,13 @@ export class PaymentsService {
         type: 'redirect',
         return_url: `${this.returnUrl}?order=${orderId}`,
       },
-      capture: true, // автоматическое подтверждение
+      capture: true,
       description,
       metadata: {
         order_id: orderId.toString(),
       },
     };
 
-    // Если указан конкретный метод оплаты
     if (paymentMethod === 'sbp') {
       body.payment_method_data = { type: 'sbp' };
     } else if (paymentMethod === 'bank_card') {
@@ -122,7 +117,6 @@ export class PaymentsService {
 
     const payment: YooKassaPayment = await response.json();
 
-    // Сохраняем ID платежа в заказе
     await this.prisma.order.update({
       where: { id: orderId },
       data: {
@@ -141,7 +135,6 @@ export class PaymentsService {
 
   /**
    * Обработка webhook от YooKassa.
-   * Вызывается когда юзер оплатил (или платёж отменён).
    */
   async handleWebhook(body: any) {
     const event = body.event;
@@ -157,16 +150,16 @@ export class PaymentsService {
     const orderId = parseInt(payment.metadata.order_id, 10);
 
     if (event === 'payment.succeeded') {
-      await this.handlePaymentSuccess(orderId, payment.id);
+      await this.handlePaymentSuccess(orderId, payment);
     } else if (event === 'payment.canceled') {
       await this.handlePaymentCanceled(orderId, payment.id);
     }
   }
 
   /**
-   * Платёж успешен — обновляем заказ, запускаем поиск бустера.
+   * Платёж успешен — проверяем сумму, обновляем заказ.
    */
-  private async handlePaymentSuccess(orderId: number, paymentId: string) {
+  private async handlePaymentSuccess(orderId: number, payment: YooKassaPayment) {
     const order = await this.prisma.order.findUnique({
       where: { id: orderId },
       include: {
@@ -176,12 +169,27 @@ export class PaymentsService {
     });
 
     if (!order) {
-      this.logger.error(`Order #${orderId} not found for payment ${paymentId}`);
+      this.logger.error(`Order #${orderId} not found for payment ${payment.id}`);
       return;
     }
 
     if (order.paymentStatus === 'PAID') {
       this.logger.warn(`Order #${orderId} already marked as PAID`);
+      return;
+    }
+
+    // Проверяем что paymentId совпадает
+    if (order.paymentId && order.paymentId !== payment.id) {
+      this.logger.error(`Payment ID mismatch: order has ${order.paymentId}, webhook has ${payment.id}`);
+      return;
+    }
+
+    // Проверяем сумму — оплаченная сумма должна совпадать с ценой заказа
+    const paidAmount = parseFloat(payment.amount.value);
+    if (Math.abs(paidAmount - order.totalPrice) > 1) {
+      this.logger.error(
+        `Amount mismatch for order #${orderId}: paid ${paidAmount}, expected ${order.totalPrice}`,
+      );
       return;
     }
 
@@ -191,9 +199,9 @@ export class PaymentsService {
       data: { paymentStatus: 'PAID' },
     });
 
-    this.logger.log(`Order #${orderId} PAID via ${paymentId}`);
+    this.logger.log(`Order #${orderId} PAID via ${payment.id} (${paidAmount}₽)`);
 
-    // Запускаем поиск бустера через event
+    // Запускаем поиск бустера
     this.eventEmitter.emit(
       'order.created',
       new OrderCreatedEvent(orderId, order.customerId, order.serviceId),
@@ -213,7 +221,7 @@ export class PaymentsService {
   }
 
   /**
-   * Проверить статус платежа (polling — если webhook не дошёл).
+   * Проверить статус платежа.
    */
   async checkPaymentStatus(paymentId: string): Promise<YooKassaPayment> {
     const response = await fetch(`${this.apiUrl}/payments/${paymentId}`, {

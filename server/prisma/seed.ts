@@ -23,7 +23,7 @@ async function main() {
     update: {},
     create: {
       name: 'Буст ранга',
-      description: 'Повышение ранга в рейтинговых играх',
+      description: 'Повышение рейтинга в рейтинговых играх',
     },
   });
 
@@ -45,21 +45,40 @@ async function main() {
     },
   });
 
-  console.log(`✅ Service types: ${boostRank.name}, ${levelUp.name}, ${survival.name}`);
+  const survivorType = await prisma.serviceType.upsert({
+    where: { name: 'Выживший' },
+    update: {},
+    create: {
+      name: 'Выживший',
+      description: 'Топ 50 сезона — буст и удержание ранга Выживший',
+    },
+  });
+
+  console.log(`✅ Service types: ${boostRank.name}, ${levelUp.name}, ${survival.name}, ${survivorType.name}`);
 
   // ─── Услуги (PUBG) ───
-  const services = [
-    {
+
+  // Проверяем существующие услуги чтобы не дублировать
+  const existingServices = await prisma.service.findMany();
+  const existingNames = existingServices.map(s => s.name);
+
+  const newServices = [];
+
+  if (!existingNames.includes('PUBG Буст ранга')) {
+    newServices.push({
       name: 'PUBG Буст ранга',
-      description: 'Повышение ранга от Бронзы до Мастера',
+      description: 'Повышение рейтинга от Бронзы до Мастера',
       basePrice: 1000,
       pricePerUnit: 1000,
       minUnits: 1,
       maxUnits: 6,
       gameCategoryId: pubg.id,
       serviceTypeId: boostRank.id,
-    },
-    {
+    });
+  }
+
+  if (!existingNames.includes('PUBG Прокачка уровня')) {
+    newServices.push({
       name: 'PUBG Прокачка уровня',
       description: 'Прокачка уровня аккаунта до 80',
       basePrice: 500,
@@ -68,8 +87,11 @@ async function main() {
       maxUnits: 80,
       gameCategoryId: pubg.id,
       serviceTypeId: levelUp.id,
-    },
-    {
+    });
+  }
+
+  if (!existingNames.includes('PUBG Выживания')) {
+    newServices.push({
       name: 'PUBG Выживания',
       description: 'Все достижения по выживаниям',
       basePrice: 3000,
@@ -78,24 +100,43 @@ async function main() {
       maxUnits: null,
       gameCategoryId: pubg.id,
       serviceTypeId: survival.id,
-    },
-  ];
-
-  for (const service of services) {
-    await prisma.service.upsert({
-      where: { id: 0 }, // Нет уникального поля — создаём всегда
-      update: {},
-      create: service,
     });
   }
 
-  // Workaround: используем createMany если данные ещё не созданы
-  const existingServices = await prisma.service.count();
-  if (existingServices === 0) {
-    await prisma.service.createMany({ data: services });
+  // ─── Новые услуги: Выживший ───
+
+  if (!existingNames.includes('Выживший — Полный надзор')) {
+    newServices.push({
+      name: 'Выживший — Полный надзор',
+      description: 'Бустер поддерживает ваш ранг в Топ 50 до конца сезона. Играет минимум 1 матч в неделю, чтобы рейтинг не снижался.',
+      basePrice: 15000,
+      pricePerUnit: null,
+      minUnits: null,
+      maxUnits: null,
+      gameCategoryId: pubg.id,
+      serviceTypeId: survivorType.id,
+    });
   }
 
-  console.log(`✅ Services seeded`);
+  if (!existingNames.includes('Выживший — Буст до ПТС')) {
+    newServices.push({
+      name: 'Выживший — Буст до ПТС',
+      description: 'Бустер набирает целевые ПТС прошлого сезона (например 4300). После достижения цели заказ завершается — удержание рейтинга на вас.',
+      basePrice: 10000,
+      pricePerUnit: null,
+      minUnits: null,
+      maxUnits: null,
+      gameCategoryId: pubg.id,
+      serviceTypeId: survivorType.id,
+    });
+  }
+
+  if (newServices.length > 0) {
+    await prisma.service.createMany({ data: newServices });
+    console.log(`✅ Created ${newServices.length} new services`);
+  } else {
+    console.log(`✅ All services already exist`);
+  }
 
   // ─── Админ (опционально) ───
   const adminTelegramId = process.env.ADMIN_TELEGRAM_ID;
