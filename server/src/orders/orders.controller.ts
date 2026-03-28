@@ -6,9 +6,11 @@ import {
   Delete,
   Body,
   Param,
+  Query,
   ParseIntPipe,
   UseGuards,
 } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { Role } from '@prisma/client';
 import { OrdersService } from './orders.service';
 import { CreateOrderDto } from './dto/create-order.dto';
@@ -25,11 +27,12 @@ export class OrdersController {
 
   /**
    * POST /api/orders
-   * Создать заказ (только CUSTOMER)
+   * Создать заказ — rate limit: 3 заказа в 5 минут
    */
   @Post()
   @UseGuards(RolesGuard)
   @Roles(Role.CUSTOMER)
+  @Throttle({ default: { ttl: 300000, limit: 3 } })
   async create(
     @CurrentUser('sub') userId: number,
     @Body() dto: CreateOrderDto,
@@ -38,17 +41,22 @@ export class OrdersController {
   }
 
   /**
-   * GET /api/orders
-   * Мои заказы (CUSTOMER)
+   * GET /api/orders?limit=20&offset=0
+   * Мои заказы с пагинацией
    */
   @Get()
-  async findMyOrders(@CurrentUser('sub') userId: number) {
-    return this.ordersService.findByCustomer(userId);
+  async findMyOrders(
+    @CurrentUser('sub') userId: number,
+    @Query('limit') limit?: string,
+    @Query('offset') offset?: string,
+  ) {
+    const take = Math.min(parseInt(limit || '20', 10) || 20, 50); // макс 50
+    const skip = parseInt(offset || '0', 10) || 0;
+    return this.ordersService.findByCustomer(userId, take, skip);
   }
 
   /**
    * GET /api/orders/:id
-   * Детали заказа
    */
   @Get(':id')
   async findOne(
@@ -61,7 +69,6 @@ export class OrdersController {
 
   /**
    * PATCH /api/orders/:id/status
-   * Обновить статус (WORKER/ADMIN)
    */
   @Patch(':id/status')
   @UseGuards(RolesGuard)
@@ -77,7 +84,6 @@ export class OrdersController {
 
   /**
    * DELETE /api/orders/:id
-   * Отменить заказ (CUSTOMER, только PENDING)
    */
   @Delete(':id')
   @UseGuards(RolesGuard)

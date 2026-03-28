@@ -3,6 +3,8 @@ import { AboutUsHero, AboutUsRecords } from "../modules/aboutus"
 import { BgShining } from "../shared/ui/BackgroundShining"
 import { Questions } from "../shared/ui/Questions"
 import { aboutUsRouteClass, baseLayoutClass } from "./constants"
+import { SEO } from "../core/components/SEO"
+import { SEO_CONFIG } from "../core/config/seo.config"
 
 const Features = lazy(() => import("../shared/ui/Features"))
 const Reviews = lazy(() => import("../modules/reviews"))
@@ -10,6 +12,7 @@ const Reviews = lazy(() => import("../modules/reviews"))
 const AboutUsRoute = () => {
   return (
     <>
+      <SEO {...SEO_CONFIG.aboutus} />
       <div className={aboutUsRouteClass}>
         <AboutUsHero />
         <AboutUsRecords />

@@ -2,10 +2,18 @@ import {
   IsInt,
   IsOptional,
   IsArray,
+  IsString,
+  IsEnum,
   Min,
   IsPositive,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+
+export enum OrderTypeDto {
+  BOOST = 'BOOST',
+  SURVIVOR_FULL = 'SURVIVOR_FULL',
+  SURVIVOR_PTS = 'SURVIVOR_PTS',
+}
 
 export class CreateOrderDto {
   @IsInt()
@@ -33,4 +41,18 @@ export class CreateOrderDto {
     title: string;
     koef: number;
   }>;
+
+  @IsString()
+  @IsOptional()
+  promoCode?: string;
+
+  @IsEnum(OrderTypeDto)
+  @IsOptional()
+  orderType?: OrderTypeDto;
+
+  // Для Выжившего — целевые ПТС
+  @IsInt()
+  @IsOptional()
+  @Type(() => Number)
+  targetPts?: number;
 }

@@ -2,6 +2,8 @@ import { lazy } from "react"
 import { BgShining } from "../shared/ui/BackgroundShining"
 import { Questions } from "../shared/ui/Questions"
 import { ServicesRouteClass } from "./constants"
+import { SEO } from "../core/components/SEO"
+import { SEO_CONFIG } from "../core/config/seo.config"
 
 const Features = lazy(() => import("../shared/ui/Features"))
 const Calculator = lazy(() => import("../modules/calculator"))
@@ -10,6 +12,7 @@ const Reviews = lazy(() => import("../modules/reviews"))
 const ServicesRoute = () => {
   return (
     <>
+      <SEO {...SEO_CONFIG.services} />
       <div className={ServicesRouteClass}>
         <BgShining
           top='top-30 max-sm:top-10'

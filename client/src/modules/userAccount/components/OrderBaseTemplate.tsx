@@ -1,22 +1,7 @@
-/**
- * OrderBaseTemplate — обновлённый шаблон заказа.
- *
- * БЫЛО: использовал тип Order из OrdersData.tsx (моковый)
- * СТАЛО: использует тип Order из orders.api.ts (реальный)
- *
- * Ключевые отличия нового типа Order:
- * - id: number (было string)
- * - status: "PENDING" | "ASSIGNED" | "IN_PROGRESS" | "COMPLETED" | "CANCELLED"
- *   (было только pending/completed/cancelled)
- * - Добавлены ASSIGNED и IN_PROGRESS
- * - Есть данные о сервисе (service.name) и работнике (worker)
- * - Дата в формате ISO string (createdAt вместо date)
- */
-
 import { type Order } from "../../../core/api/orders.api"
 import { useState } from "react"
+import { OrderOpenModal } from "./OrderOpenModal"
 
-// Маппинг статусов на русский + цвета
 const STATUS_CONFIG = {
   PENDING: {
     label: "Ожидание",
@@ -32,7 +17,7 @@ const STATUS_CONFIG = {
   },
   COMPLETED: {
     label: "Завершён",
-    className: "border border-[#071E07] text-[#2D531A]",
+    className: "border border-[#2D531A] text-[#2D531A]",
   },
   CANCELLED: {
     label: "Отменён",
@@ -40,48 +25,70 @@ const STATUS_CONFIG = {
   },
 } as const
 
-export const OrderBaseTemplate = ({ order }: { order: Order }) => {
+export const OrderBaseTemplate = ({
+  order,
+  onUpdate,
+}: {
+  order: Order
+  onUpdate?: () => void
+}) => {
+  const [isModalOpen, setIsModalOpen] = useState(false)
   const statusConfig = STATUS_CONFIG[order.status]
 
-  // Название: берём из service, или формируем из рангов
-  const title = order.service.name
-
   return (
-    <div className='border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow cursor-pointer'>
-      <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3'>
-        <div>
-          <h3 className='font-gilroy text-[clamp(0.9rem,1.1vw,1.1rem)] text-white'>
-            #{order.id}
-          </h3>
-          <p className='text-[clamp(0.9rem,1.1vw,1.1rem)] font-gilroy text-white/90'>
-            {new Date(order.createdAt).toLocaleDateString("ru-RU")}
-          </p>
+    <>
+      <div
+        onClick={() => setIsModalOpen(true)}
+        className='border border-gray-700 rounded-lg p-4 hover:border-gray-500 transition-colors cursor-pointer'
+      >
+        <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3'>
+          <div>
+            <h3 className='font-gilroy text-[clamp(0.9rem,1.1vw,1.1rem)] text-white'>
+              #{order.id}
+            </h3>
+            <p className='text-[clamp(0.85rem,0.95vw,0.95rem)] font-gilroy text-white/60'>
+              {new Date(order.createdAt).toLocaleDateString("ru-RU")}
+            </p>
+          </div>
+          <span
+            className={`px-3 py-1 text-center rounded-full text-[clamp(0.85rem,0.95vw,0.95rem)] font-gilroy ${statusConfig.className} mt-2 sm:mt-0`}
+          >
+            {statusConfig.label}
+          </span>
         </div>
-        <span
-          className={`px-3 py-1 text-center rounded-full text-[clamp(1rem,1.1vw,1.1rem)] font-gilroy ${statusConfig.className} mt-2 sm:mt-0`}
-        >
-          {statusConfig.label}
-        </span>
+
+        <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between'>
+          <div>
+            <p className='text-white font-gilroy text-[clamp(1rem,1.1vw,1.1rem)]'>
+              {order.service.name}
+            </p>
+            {order.worker && (
+              <p className='text-gray-500 font-gilroy text-[clamp(0.8rem,0.9vw,0.9rem)] mt-1'>
+                ⭐ {order.worker.rating}/5 · {order.worker.completedCount} заказов
+              </p>
+            )}
+          </div>
+          <div className='flex items-center gap-3 mt-2 sm:mt-0'>
+            {order.status === "COMPLETED" && !order.rating && (
+              <span className='text-pink-gradient1 font-gilroy text-[clamp(0.8rem,0.9vw,0.9rem)]'>
+                Оставить отзыв →
+              </span>
+            )}
+            <p className='font-gilroyMedium text-[clamp(0.9rem,1.1vw,1.1rem)] text-white/95'>
+              {order.totalPrice.toLocaleString("ru-RU")} ₽
+            </p>
+          </div>
+        </div>
       </div>
 
-      <div className='flex flex-col sm:flex-row sm:items-center sm:justify-between'>
-        <div>
-          <p className='text-white font-gilroy text-[clamp(1.05rem,1.1vw,1.1rem)]'>
-            {title}
-          </p>
-          {/* Показываем бустера если назначен */}
-          {order.worker && (
-            <p className='text-gray-400 font-gilroy text-[clamp(0.85rem,0.95vw,0.95rem)] mt-1'>
-              Бустер: {order.worker.username
-                ? `@${order.worker.username}`
-                : order.worker.firstName || "Назначен"}
-            </p>
-          )}
-        </div>
-        <p className='font-gilroyMedium text-[clamp(0.9rem,1.1vw,1.1rem)] text-white/95 mt-2 sm:mt-0'>
-          {order.totalPrice.toLocaleString("ru-RU")} ₽
-        </p>
-      </div>
-    </div>
+      <OrderOpenModal
+        order={order}
+        isModalOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false)
+          onUpdate?.()
+        }}
+      />
+    </>
   )
 }

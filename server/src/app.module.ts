@@ -1,19 +1,23 @@
 import { Module } from '@nestjs/common';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { OrdersModule } from './orders/orders.module';
 import { ServicesModule } from './services/services.module';
+import { ReviewsModule } from './reviews/reviews.module';
+import { PromoModule } from './promo/promo.module';
+import { PaymentsModule } from './payments/payments.module';
 import { TelegramBotModule } from './telegram-bot/telegram-bot.module';
+import { ChatCleanupService } from './common/services/chat-cleanup.service';
 
 @Module({
   imports: [
-    // Event system for Orders ↔ Bot communication
     EventEmitterModule.forRoot(),
+    ScheduleModule.forRoot(),
 
-    // Rate limiting: 10 requests per 60 seconds by default
     ThrottlerModule.forRoot({
       throttlers: [
         {
@@ -29,7 +33,11 @@ import { TelegramBotModule } from './telegram-bot/telegram-bot.module';
     UsersModule,
     OrdersModule,
     ServicesModule,
+    ReviewsModule,
+    PromoModule,
+    PaymentsModule,
     TelegramBotModule,
   ],
+  providers: [ChatCleanupService],
 })
 export class AppModule {}

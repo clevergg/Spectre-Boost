@@ -21,7 +21,7 @@ const initialState: IInitialState = {
   amount: 0,
 }
 
-const СalculatorStore: StateCreator<
+const CalculatorStore: StateCreator<
   ICalcAdditionsStore,
   [["zustand/immer", never], ["zustand/devtools", never], ["zustand/persist", unknown]]
 > = set => ({
@@ -53,8 +53,8 @@ const СalculatorStore: StateCreator<
 const useCalcAdditionsStore = create<ICalcAdditionsStore>()(
   immer(
     devtools(
-      persist(СalculatorStore, {
-        name: "Сalculator-storage",
+      persist(CalculatorStore, {
+        name: "Calculator-storage",
         storage: createJSONStorage(() => localStorage),
         partialize: state => ({ items: state.items }),
       })

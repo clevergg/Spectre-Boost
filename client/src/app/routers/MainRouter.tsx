@@ -11,6 +11,7 @@ import { DefaultLayout } from "../../core/layouts/DefaultLayout"
 import { UserAccountLayout } from "../../core/layouts/UserAccountLayout"
 import { ProtectedRoute } from "../../core/components/ProtectedRoute"
 import { ScrollHandler } from "../../shared/ui/ScrollHandler"
+import { usePromoFromUrl } from "../../core/hooks/usePromoFromUrl"
 import SpectreFallback from "../../shared/ui/SpectreFallback"
 import { routes } from "../config/routes"
 
@@ -18,10 +19,20 @@ const HomePage = lazy(() => import("../../pages/HomeRoute"))
 const ServicesPage = lazy(() => import("../../pages/ServicesRoute"))
 const AboutUsPage = lazy(() => import("../../pages/AboutUsRoute"))
 const AccountPage = lazy(() => import("../../pages/AccountRoute"))
+const SurvivorPage = lazy(() => import("../../pages/SurvivorRoute"))
+
+/**
+ * Компонент внутри Router — вызывает хуки зависящие от роутера
+ */
+const AppInit = () => {
+  usePromoFromUrl() // Ловит ?promo=CODE из URL на любой странице
+  return null
+}
 
 export const MainRouter = () => {
   return (
     <Router>
+      <AppInit />
       <Suspense fallback={<SpectreFallback />}>
         <ScrollHandler />
         <Routes>
@@ -29,6 +40,7 @@ export const MainRouter = () => {
             <Route index element={<HomePage />} />
             <Route path={routes.services} element={<ServicesPage />} />
             <Route path={routes.aboutus} element={<AboutUsPage />} />
+            <Route path={routes.survivor} element={<SurvivorPage />} />
           </Route>
 
           {/* Защищённые роуты — требуют авторизации */}
