@@ -1,128 +1,101 @@
-/**
- * ShowPrice — обновлённый компонент с реальным созданием заказа.
- *
- * БЫЛО: кнопка "Оплатить" ничего не делала
- * СТАЛО: кнопка отправляет заказ на бэкенд через API
- *
- * Новые концепции:
- *
- * 1. Сбор данных из нескольких сторов
- *    Калькулятор хранит данные в двух сторах:
- *    - CalculatorSelectedStore (выбранные ранги)
- *    - CalculatorAdditionsStore (допуслуги и итоговая цена)
- *    Мы собираем всё вместе при отправке.
- *
- * 2. Проверка авторизации перед действием
- *    Если юзер не авторизован — показываем модалку входа
- *    вместо отправки заказа.
- *
- * 3. Состояния кнопки: обычная → загрузка → успех → ошибка
- */
-
 import { useState } from "react"
 import { useAmount, useItems } from "../../store/CalculatorAdditionsStore"
-import {
-  useFirstSelectedRank,
-  useSecondSelectedRank,
-} from "../../store/CalculatorSelectedStore"
+import { useStartRating, useTargetRating } from "../../store/CalculatorSelectedStore"
 import { useIsAuthenticated } from "../../../../core/stores/authStore"
-import { handleChangeIsModalClick } from "../../../header/store/HeaderStore"
 import { createOrder } from "../../../../core/api/orders.api"
-import { GradientButton } from "../../../../shared/ui/GradientButton"
+import { createPayment } from "../../../../core/api/payments.api"
+import { handleChangeIsModalClick } from "../../../header/store/HeaderStore"
+import { type PromoValidation } from "../../../../core/api/promo.api"
 
-// ID услуги "PUBG Буст ранга" из сида БД.
-// В реальном проекте это придёт из каталога,
-// но пока у нас одна игра — хардкодим.
-const PUBG_BOOST_SERVICE_ID = 1
+interface ShowPriceProps {
+  promo?: PromoValidation | null
+}
 
-export const ShowPrice = () => {
+export const ShowPrice = ({ promo }: ShowPriceProps) => {
   const amount = useAmount()
   const items = useItems()
-  const firstRank = useFirstSelectedRank()
-  const secondRank = useSecondSelectedRank()
+  const startRating = useStartRating()
+  const targetRating = useTargetRating()
   const isAuthenticated = useIsAuthenticated()
+  const [isProcessing, setIsProcessing] = useState(false)
 
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [submitStatus, setSubmitStatus] = useState<
-    "idle" | "success" | "error"
-  >("idle")
+  const discountedAmount = promo ? Math.round(amount * (1 - promo.discount / 100)) : amount
 
   const handleOrder = async () => {
-    // 1. Проверяем авторизацию
     if (!isAuthenticated) {
       handleChangeIsModalClick(true)
-      document.body.classList.add("no-scroll")
       return
     }
 
-    // 2. Проверяем что ранги выбраны и цена > 0
-    if (!firstRank || !secondRank || amount <= 0) return
+    if (amount <= 0 || startRating >= targetRating) return
 
-    // 3. Собираем данные для заказа
-    const activeAdditions = items
-      .filter(item => item.isActive && item.koef > 0)
-      .map(item => ({
-        id: item.id,
-        title: item.title,
-        koef: item.koef,
-      }))
+    setIsProcessing(true)
 
     try {
-      setIsSubmitting(true)
-      setSubmitStatus("idle")
+      const activeAdditions = items
+        .filter(item => item.isActive && item.koef > 0)
+        .map(item => ({ id: item.id, title: item.title, koef: item.koef }))
 
-      await createOrder({
-        serviceId: PUBG_BOOST_SERVICE_ID,
-        startValue: firstRank.id,
-        targetValue: secondRank.id,
+      // 1. Создаём заказ
+      const order = await createOrder({
+        serviceId: 1,
+        startValue: startRating,
+        targetValue: targetRating,
         totalPrice: amount,
         additions: activeAdditions.length > 0 ? activeAdditions : undefined,
+        promoCode: promo?.code,
       })
 
-      setSubmitStatus("success")
+      // 2. Создаём платёж и редиректим на YooKassa
+      const payment = await createPayment(order.id)
 
-      // Через 3 секунды возвращаем кнопку в обычное состояние
-      setTimeout(() => setSubmitStatus("idle"), 3000)
-    } catch (err) {
-      console.error("Order creation failed:", err)
-      setSubmitStatus("error")
-      setTimeout(() => setSubmitStatus("idle"), 3000)
+      if (payment.paymentUrl) {
+        window.location.href = payment.paymentUrl
+      } else {
+        alert("Ошибка создания платежа")
+      }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+      console.error("Order/payment failed:", err)
+      alert(err.message || "Ошибка")
     } finally {
-      setIsSubmitting(false)
+      setIsProcessing(false)
     }
   }
 
-  // Текст кнопки зависит от состояния
-  const buttonText =
-    submitStatus === "success"
-      ? "✅ Заказ создан!"
-      : submitStatus === "error"
-        ? "Ошибка, попробуйте снова"
-        : isSubmitting
-          ? "Отправка..."
-          : "Оплатить"
-
   return (
-    <footer className='mt-auto'>
-      <div className='w-full mb-15 flex max-sm:flex-col gap-5 justify-between sm:h-[55px] max-md:px-10 max-lg:px-20 lg:px-5 xl:px-20'>
-        <div className='h-full border-l-3 border-[#FF97EE] flex items-baseline-last'>
-          <p className='text-white pl-3 text-[clamp(1.1rem,1.2vw,1.2rem)] font-gilroyMedium pb-1'>
-            Итог:{" "}
-            <span className='font-gilroy font-semibold text-[clamp(1.3rem,1.45vw,1.45rem)]'>
-              {amount} руб
-            </span>
+    <div className='flex flex-col items-center px-5 pb-6 gap-3'>
+      <div className='text-center'>
+        {promo && amount > 0 ? (
+          <>
+            <p className='text-white/40 font-gilroy text-[clamp(0.85rem,1vw,1rem)] line-through leading-tight'>
+              {amount.toLocaleString("ru-RU")} ₽
+            </p>
+            <p className='text-white font-unbounded text-[clamp(1.3rem,1.8vw,1.8rem)] leading-tight'>
+              {discountedAmount.toLocaleString("ru-RU")} ₽
+            </p>
+            <p className='text-green-400 font-gilroy text-[clamp(0.75rem,0.85vw,0.85rem)] mt-1'>
+              Скидка {promo.discount}%
+            </p>
+          </>
+        ) : (
+          <p className='text-white font-unbounded text-[clamp(1.3rem,1.8vw,1.8rem)]'>
+            {amount > 0 ? `${amount.toLocaleString("ru-RU")} ₽` : "—"}
           </p>
-        </div>
-
-        <GradientButton
-          onClick={handleOrder}
-          className={`px-15 rounded-[11px] max-sm:py-4 ${
-            isSubmitting ? "opacity-70 pointer-events-none" : ""
-          }`}
-        >
-          {buttonText}
-        </GradientButton>
+        )}
       </div>
-    </footer>
+
+      <button
+        onClick={handleOrder}
+        disabled={amount <= 0 || isProcessing}
+        className={`w-full py-3 rounded-xl font-gilroy text-[clamp(1rem,1.2vw,1.2rem)] font-semibold transition-all ${
+          amount > 0 && !isProcessing
+            ? "bg-linear-to-r from-pink-gradient1 to-pink-gradient2 text-white cursor-pointer hover:opacity-90"
+            : "bg-gray-800 text-gray-500 cursor-not-allowed"
+        }`}
+      >
+        {!isAuthenticated ? "Войдите чтобы заказать" : isProcessing ? "Обработка..." : "Оплатить"}
+      </button>
+    </div>
   )
 }

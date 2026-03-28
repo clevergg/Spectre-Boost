@@ -15,7 +15,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: process.env.JWT_SECRET || 'default-secret-change-me',
+      secretOrKey: process.env.JWT_SECRET!, // Валидация в main.ts гарантирует наличие
     });
   }
 
@@ -28,7 +28,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       throw new UnauthorizedException('User not found or deactivated');
     }
 
-    // Это будет доступно как request.user
     return {
       sub: user.id,
       telegramId: user.telegramId.toString(),

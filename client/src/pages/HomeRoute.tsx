@@ -3,12 +3,15 @@ import { CardsSection, HeroSection } from "../modules/home"
 import { BgShining } from "../shared/ui/BackgroundShining"
 import { Questions } from "../shared/ui/Questions"
 import { baseLayoutClass, HomeQuestionsLayoutClass } from "./constants"
+import { SEO } from "../core/components/SEO"
+import { SEO_CONFIG } from "../core/config/seo.config"
 
 const Reviews = lazy(() => import("../modules/reviews"))
 
 const HomeRoute = () => {
   return (
     <>
+      <SEO {...SEO_CONFIG.home} />
       <div className={baseLayoutClass}>
         <BgShining
           top='top-0'
