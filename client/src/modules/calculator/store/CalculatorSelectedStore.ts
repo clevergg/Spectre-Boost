@@ -1,7 +1,7 @@
 import { create, type StateCreator } from "zustand"
 import { createJSONStorage, devtools, persist } from "zustand/middleware"
 import { immer } from "zustand/middleware/immer"
-import { MIN_RATING, MAX_RATING, getRankByRating, type RankTiers } from "../data/CalculatorData"
+import { MIN_RATING, MAX_RATING, getRankByRating } from "../data/CalculatorData"
 import { type RankTier } from "../types"
 
 interface IActions {
@@ -78,7 +78,6 @@ export const useTargetRank = (): RankTier | null => {
 }
 
 // ─── Экшены ───
-export const setStartRating = (rating: number) =>
-  useSelectsStore.getState().setStartRating(rating)
+export const setStartRating = (rating: number) => useSelectsStore.getState().setStartRating(rating)
 export const setTargetRating = (rating: number) =>
   useSelectsStore.getState().setTargetRating(rating)

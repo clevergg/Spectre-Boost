@@ -13,7 +13,7 @@ import {
   setTargetRating,
 } from "../../store/CalculatorSelectedStore"
 
-export const FirstCardSelects = () => {
+export const FirstCardInputs = () => {
   const startRating = useStartRating()
   const targetRating = useTargetRating()
 

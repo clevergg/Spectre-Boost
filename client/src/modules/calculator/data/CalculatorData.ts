@@ -1,19 +1,20 @@
-import bronze from "../../../assets/pubgIcons/bronze.jpg"
-import serebro from "../../../assets/pubgIcons/serebro.jpg"
-import gold from "../../../assets/pubgIcons/gold.jpg"
-import platina from "../../../assets/pubgIcons/platina.png"
-import diamond from "../../../assets/pubgIcons/diamond.jpg"
-import master from "../../../assets/pubgIcons/master.png"
+import bronze from "../../../assets/pubgIcons/prodIcons/bronze.png"
+import serebro from "../../../assets/pubgIcons/prodIcons/silver.png"
+import gold from "../../../assets/pubgIcons/prodIcons/gold.png"
+import platina from "../../../assets/pubgIcons/prodIcons/platinum.png"
+import crystal from "../../../assets/pubgIcons/prodIcons/crystal.png"
+import diamond from "../../../assets/pubgIcons/prodIcons/diamond.png"
+import master from "../../../assets/pubgIcons/prodIcons/Master.png"
 import { type RankTier, type additionItem } from "../types"
 
 export const RankTiers: RankTier[] = [
-  { id: 1, name: "Бронза",    image: bronze,  min: 0,    max: 1399, pricePerHundred: 150 },
-  { id: 2, name: "Серебро",   image: serebro, min: 1400, max: 1799, pricePerHundred: 200 },
-  { id: 3, name: "Золото",    image: gold,    min: 1800, max: 2199, pricePerHundred: 300 },
-  { id: 4, name: "Платина",   image: platina, min: 2200, max: 2599, pricePerHundred: 450 },
-  { id: 5, name: "Кристалл",  image: diamond, min: 2600, max: 2999, pricePerHundred: 650 },
+  { id: 1, name: "Бронза", image: bronze, min: 0, max: 1399, pricePerHundred: 150 },
+  { id: 2, name: "Серебро", image: serebro, min: 1400, max: 1799, pricePerHundred: 200 },
+  { id: 3, name: "Золото", image: gold, min: 1800, max: 2199, pricePerHundred: 300 },
+  { id: 4, name: "Платина", image: platina, min: 2200, max: 2599, pricePerHundred: 450 },
+  { id: 5, name: "Кристалл", image: crystal, min: 2600, max: 2999, pricePerHundred: 650 },
   { id: 6, name: "Бриллиант", image: diamond, min: 3000, max: 3399, pricePerHundred: 900 },
-  { id: 7, name: "Мастер",    image: master,  min: 3400, max: 3800, pricePerHundred: 1200 },
+  { id: 7, name: "Мастер", image: master, min: 3400, max: 3800, pricePerHundred: 1200 },
 ]
 
 export const CalculatorData = RankTiers.map(tier => ({

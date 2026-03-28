@@ -1,9 +1,6 @@
 import { useState } from "react"
 import { useAmount, useItems } from "../../store/CalculatorAdditionsStore"
-import {
-  useStartRating,
-  useTargetRating,
-} from "../../store/CalculatorSelectedStore"
+import { useStartRating, useTargetRating } from "../../store/CalculatorSelectedStore"
 import { useIsAuthenticated } from "../../../../core/stores/authStore"
 import { createOrder } from "../../../../core/api/orders.api"
 import { createPayment } from "../../../../core/api/payments.api"
@@ -22,9 +19,7 @@ export const ShowPrice = ({ promo }: ShowPriceProps) => {
   const isAuthenticated = useIsAuthenticated()
   const [isProcessing, setIsProcessing] = useState(false)
 
-  const discountedAmount = promo
-    ? Math.round(amount * (1 - promo.discount / 100))
-    : amount
+  const discountedAmount = promo ? Math.round(amount * (1 - promo.discount / 100)) : amount
 
   const handleOrder = async () => {
     if (!isAuthenticated) {
@@ -59,6 +54,7 @@ export const ShowPrice = ({ promo }: ShowPriceProps) => {
       } else {
         alert("Ошибка создания платежа")
       }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       console.error("Order/payment failed:", err)
       alert(err.message || "Ошибка")
@@ -94,15 +90,11 @@ export const ShowPrice = ({ promo }: ShowPriceProps) => {
         disabled={amount <= 0 || isProcessing}
         className={`w-full py-3 rounded-xl font-gilroy text-[clamp(1rem,1.2vw,1.2rem)] font-semibold transition-all ${
           amount > 0 && !isProcessing
-            ? "bg-gradient-to-r from-pink-gradient1 to-pink-gradient2 text-white cursor-pointer hover:opacity-90"
+            ? "bg-linear-to-r from-pink-gradient1 to-pink-gradient2 text-white cursor-pointer hover:opacity-90"
             : "bg-gray-800 text-gray-500 cursor-not-allowed"
         }`}
       >
-        {!isAuthenticated
-          ? "Войдите чтобы заказать"
-          : isProcessing
-            ? "Обработка..."
-            : "Оплатить"}
+        {!isAuthenticated ? "Войдите чтобы заказать" : isProcessing ? "Обработка..." : "Оплатить"}
       </button>
     </div>
   )

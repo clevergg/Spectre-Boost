@@ -45,9 +45,7 @@ export const MobileNavigation = () => {
 
   return (
     <ul
-      className={`flex md:hidden flex-col ${
-        !isBurgerOpen ? "hidden" : null
-      } text-center space-y-4`}
+      className={`flex md:hidden flex-col ${!isBurgerOpen ? "hidden" : null} text-center space-y-4`}
     >
       {mobileNavbarData.map((item, index) => (
         <NavLink
