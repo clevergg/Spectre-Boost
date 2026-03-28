@@ -11,7 +11,7 @@ import { RolesGuard } from './guards/roles.guard';
   imports: [
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.register({
-      secret: process.env.JWT_SECRET || 'default-secret-change-me',
+      secret: process.env.JWT_SECRET!, // Валидация в main.ts гарантирует наличие
       signOptions: { expiresIn: (process.env.JWT_ACCESS_EXPIRATION || '15m') as any },
     }),
   ],

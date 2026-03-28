@@ -128,6 +128,9 @@ model Order {
   targetValue Int?
   totalPrice  Int
   additions   Json?
+  orderType   OrderType @default(BOOST)
+  targetPts   Int?       // целевые ПТС (для SURVIVOR_PTS)
+  seasonEnd   DateTime?  // конец сезона (для SURVIVOR_FULL)
 
   customerId Int
   customer   User @relation("CustomerOrders", fields: [customerId], references: [id], onDelete: Cascade)
@@ -168,6 +171,12 @@ model Order {
 
 
   @@map("orders")
+}
+
+enum OrderType {
+  BOOST           // обычный буст ранга
+  SURVIVOR_FULL   // полный надзор до конца сезона
+  SURVIVOR_PTS    // буст до целевых ПТС
 }
 
 enum PaymentStatus {
