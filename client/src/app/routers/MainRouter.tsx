@@ -42,7 +42,7 @@ export const MainRouter = () => {
             <Route path={routes.services} element={<ServicesPage />} />
             <Route path={routes.aboutus} element={<AboutUsPage />} />
             <Route path={routes.survivor} element={<SurvivorPage />} />
-
+          </Route>
 
           {/* Защищённые роуты — требуют авторизации */}
           <Route
