@@ -7,3 +7,4 @@ dist/
 !nest-cli.json
 !package.json
 !tsconfig.json
+!patch-telegraf.js

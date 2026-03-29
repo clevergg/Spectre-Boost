@@ -20,8 +20,8 @@ interface ISurvivorStore extends IActions, IInitialState {}
  * Эти значения — fallback на случай если API не ответил.
  */
 export const SURVIVOR_PRICES: Record<BoostType, number> = {
-  survivor_pts: 10000,
-  survivor_full: 15000,
+  survivor_pts: 30000,
+  survivor_full: 45000,
 }
 
 const initialState: IInitialState = {
