@@ -1,5 +1,5 @@
 import { GoClockFill } from "react-icons/go"
-import master from "../../../assets/pubgIcons/prodIcons/Master.png"
+import Survivor from "../../../assets/pubgIcons/prodIcons/Survivor.png"
 import { PromoCodeInput } from "./PromoCodeInput"
 import { useState } from "react"
 import type { PromoValidation } from "../../../core/api/promo.api"
@@ -15,7 +15,7 @@ export const SecondCard = () => {
         className='text-[clamp(1.5rem,3vw,2rem)] xl:px-6 text-center text-gradient-purple-blue font-unbounded'
       />
       <div className='bg-[#0A0A0A] flex items-center justify-center w-full my-6 h-fit py-2'>
-        <img src={master} alt={"master"} loading='lazy' className='h-20' />
+        <img src={Survivor} alt={"Survivor"} loading='lazy' className='h-20' />
       </div>
 
       <div className='bg-[#0A0A0A] my-5 w-full h-[50px] flex items-center justify-center'>
