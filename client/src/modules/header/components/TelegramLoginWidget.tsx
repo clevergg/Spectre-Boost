@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react"
+import type { TelegramAuthData } from "../../../core/api/auth.api"
 import { login } from "../../../core/stores/authStore"
 import { handleChangeIsModalClick } from "../store/HeaderStore"
-import type { TelegramAuthData } from "../../../core/api/auth.api"
 
 const BOT_USERNAME = import.meta.env.VITE_BOT_USERNAME || "SpectreBoost_bot"
 
@@ -16,6 +16,7 @@ export const TelegramLoginWidget = () => {
   const [widgetVisible, setWidgetVisible] = useState(false)
 
   useEffect(() => {
+    // Callback mode — если виджет загрузился
     window.onTelegramAuth = async (user: TelegramAuthData) => {
       try {
         await login(user)
@@ -32,16 +33,14 @@ export const TelegramLoginWidget = () => {
     script.setAttribute("data-telegram-login", BOT_USERNAME)
     script.setAttribute("data-size", "large")
     script.setAttribute("data-radius", "12")
-    script.setAttribute("data-onauth", "onTelegramAuth(user)")
+    // Используем redirect mode — Telegram перенаправит на /auth/callback
+    script.setAttribute("data-auth-url", `${window.location.origin}/auth/callback`)
     script.setAttribute("data-request-access", "write")
 
     script.onload = () => {
-      // Проверяем что iframe виджета реально появился
       setTimeout(() => {
         const iframe = containerRef.current?.querySelector("iframe")
-        if (iframe) {
-          setWidgetVisible(true)
-        }
+        if (iframe) setWidgetVisible(true)
       }, 1000)
     }
 
@@ -57,10 +56,8 @@ export const TelegramLoginWidget = () => {
 
   return (
     <div className='flex flex-col items-center gap-4'>
-      {/* Telegram Script Widget — может не загрузиться на мобильных */}
       <div ref={containerRef} className='flex justify-center' />
 
-      {/* Кнопка-фоллбэк — видна всегда если виджет не загрузился */}
       {!widgetVisible && (
         <a
           href={`https://t.me/${BOT_USERNAME}?start=login`}
@@ -75,13 +72,6 @@ export const TelegramLoginWidget = () => {
             Войти через Telegram
           </span>
         </a>
-      )}
-
-      {/* Подсказка */}
-      {!widgetVisible && (
-        <p className='text-gray-500 font-gilroy text-[clamp(0.75rem,0.85vw,0.85rem)] text-center'>
-          Напишите боту /start для авторизации
-        </p>
       )}
     </div>
   )
