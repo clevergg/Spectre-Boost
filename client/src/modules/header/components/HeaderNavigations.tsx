@@ -8,6 +8,9 @@ import { useIsBurgerOpen, useIsModalOpen, handleChangeIsModalClick } from "../st
 import { useIsAuthenticated } from "../../../core/stores/authStore"
 import { routes } from "../../../app/config/routes"
 
+const GLOW_CLASS =
+  "relative before:absolute before:inset-0 before:bg-[#E8CEE4] before:blur-[10px] before:rounded-full before:opacity-20"
+
 export const DesktopNavigation = () => {
   const handleLinkClick = useNavigateLinks()
   const isModalOpen = useIsModalOpen()
@@ -20,11 +23,9 @@ export const DesktopNavigation = () => {
           key={index}
           onClick={() => handleLinkClick(item.link)}
           className={({ isActive }) =>
-            `text-white text-[clamp(1.2rem,1.4vw,1.4rem)] font-light ${
-              !isActive ? "hover:text-[#E8CEE4]" : null
-            } ${
-              isActive && !isModalOpen ? "LinkHover" : null
-            } transition-all duration-500 ease-in-out font-gilroy`
+            `text-white text-[clamp(1.2rem,1.4vw,1.4rem)] font-light transition-all duration-500 ease-in-out font-gilroy ${
+              isActive && !isModalOpen ? GLOW_CLASS : "hover:text-[#E8CEE4]"
+            }`
           }
         >
           {item.title}
@@ -38,6 +39,7 @@ export const MobileNavigation = () => {
   const handleLinkClick = useNavigateLinks()
   const isBurgerOpen = useIsBurgerOpen()
   const isAuthenticated = useIsAuthenticated()
+  const isModalOpen = useIsModalOpen()
 
   const handleLoginClick = () => {
     handleChangeIsModalClick(true)
@@ -52,7 +54,11 @@ export const MobileNavigation = () => {
           to={item.link}
           key={index}
           onClick={() => handleLinkClick(item.link)}
-          className='text-white text-[clamp(1.3rem,1.3vw,2rem)] font-gilroy'
+          className={({ isActive }) =>
+            `text-white text-[clamp(1.3rem,1.3vw,2rem)] font-gilroy ${
+              isActive && !isModalOpen ? GLOW_CLASS : "hover:text-[#E8CEE4]"
+            }`
+          }
         >
           {item.title}
         </NavLink>

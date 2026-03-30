@@ -44,6 +44,7 @@ const AuthCallback = () => {
         await login(authData)
         // Успешно — редирект на главную
         navigate("/")
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (err: any) {
         console.error("Auth callback failed:", err)
         setError(err.message || "Ошибка авторизации")
@@ -59,17 +60,13 @@ const AuthCallback = () => {
       <div className='text-center'>
         {error ? (
           <>
-            <p className='text-red-400 font-gilroy text-[clamp(1rem,1.2vw,1.2rem)] mb-2'>
-              {error}
-            </p>
+            <p className='text-red-400 font-gilroy text-[clamp(1rem,1.2vw,1.2rem)] mb-2'>{error}</p>
             <p className='text-gray-500 font-gilroy text-[clamp(0.85rem,0.95vw,0.95rem)]'>
               Перенаправляем на главную...
             </p>
           </>
         ) : (
-          <p className='text-white font-gilroy text-[clamp(1rem,1.2vw,1.2rem)]'>
-            Авторизация...
-          </p>
+          <p className='text-white font-gilroy text-[clamp(1rem,1.2vw,1.2rem)]'>Авторизация...</p>
         )}
       </div>
     </div>

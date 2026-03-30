@@ -15,7 +15,7 @@
  * - Header перерисовывается: вместо "Войти" — аватар/имя
  */
 
-import { lazy, useEffect } from "react"
+import { lazy } from "react"
 import { GradientButton } from "../../../shared/ui/GradientButton"
 import { handleChangeIsModalClick, useIsModalOpen } from "../store/HeaderStore"
 import { TelegramLoginWidget } from "./TelegramLoginWidget"
@@ -24,12 +24,6 @@ const CreatePortalModal = lazy(() => import("../../../shared/ui/CreatePortalModa
 
 export function AuthorizationModalHeader() {
   const isModalOpen = useIsModalOpen()
-
-  useEffect(() => {
-    if (!isModalOpen) {
-      document.body.classList.remove("no-scroll")
-    }
-  }, [isModalOpen])
 
   return (
     <CreatePortalModal isOpen={isModalOpen} onClose={() => handleChangeIsModalClick(false)}>

@@ -1,26 +1,20 @@
 import { useEffect, useState } from "react"
 import { GoClockFill } from "react-icons/go"
-import { LiaArrowRightSolid } from "react-icons/lia"
 import { useItems } from "../store/CalculatorAdditionsStore"
-import {
-  useStartRating,
-  useTargetRating,
-  useStartRank,
-  useTargetRank,
-} from "../store/CalculatorSelectedStore"
+import { useStartRating, useTargetRating } from "../store/CalculatorSelectedStore"
 import { calculator } from "../services/Calculator"
-import { SecondCardTitle } from "./ui/Titles"
+import { TitleTemplate } from "../../../shared/ui/TitleTemplate"
+
 import { SecondCardAdditionsList } from "./ui/SecondCardAdditionsList"
 import { ShowPrice } from "./ui/ShowPrice"
 import { PromoCodeInput } from "./PromoCodeInput"
 import { type PromoValidation } from "../../../core/api/promo.api"
+import { ShowRanksSection } from "./ShowRanksSection"
 
 export const SecondCard = () => {
   const items = useItems()
   const startRating = useStartRating()
   const targetRating = useTargetRating()
-  const startRank = useStartRank()
-  const targetRank = useTargetRank()
   const [promo, setPromo] = useState<PromoValidation | null>(null)
 
   useEffect(() => {
@@ -29,31 +23,12 @@ export const SecondCard = () => {
 
   return (
     <article className='max-lg:w-full bg-transparent border border-gray w-[40%] rounded-xl shadow-md h-full flex flex-col'>
-      <SecondCardTitle />
+      <TitleTemplate
+        strong='Итого к оплате'
+        className='text-[clamp(1.5rem,3vw,2rem)] xl:px-6 pt-12 lg:pt-20 text-center text-gradient-purple-blue font-unbounded'
+      />
 
-      <div className='bg-[#0A0A0A] w-full my-6 h-[65px]'>
-        {startRank && targetRank && startRating < targetRating && (
-          <div className='flex flex-row items-center px-5 justify-center h-full gap-3'>
-            <div className='flex items-center gap-2'>
-              <img src={startRank.image} alt={startRank.name} className='h-[40px]' />
-              <div className='text-white font-gilroy'>
-                <p className='text-[clamp(0.85rem,1vw,1rem)] font-semibold'>{startRank.name}</p>
-                <p className='text-gray text-[clamp(0.75rem,0.85vw,0.85rem)]'>{startRating}</p>
-              </div>
-            </div>
-
-            <LiaArrowRightSolid className='w-8 h-8 text-white' />
-
-            <div className='flex items-center gap-2'>
-              <img src={targetRank.image} alt={targetRank.name} className='h-[40px]' />
-              <div className='text-white font-gilroy'>
-                <p className='text-[clamp(0.85rem,1vw,1rem)] font-semibold'>{targetRank.name}</p>
-                <p className='text-gray text-[clamp(0.75rem,0.85vw,0.85rem)]'>{targetRating}</p>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
+      <ShowRanksSection />
 
       <SecondCardAdditionsList />
 

@@ -1,6 +1,7 @@
 import { FaCircleArrowRight } from "react-icons/fa6"
-import { BgShining } from "../../shared/ui/BackgroundShining"
 import { GradientButton } from "../../shared/ui/GradientButton"
+import { BgShiningGroup } from "../../shared/ui/BackgroudShining/BgShiningGroup"
+import { aboutUsHero } from "../../shared/ui/BackgroudShining/BgShiningSets"
 export const AboutUsHero = () => {
   return (
     <section className='px-7 w-full relative py-[calc(4rem+4vw)]'>
@@ -9,14 +10,7 @@ export const AboutUsHero = () => {
           SPECTRE BOOST
         </h1>
 
-        <BgShining
-          top='top-[-80px] max-md:top-[-100px]'
-          left='lg:left-1/4.5'
-          bgColor='bg-[#110f22]'
-          blur='blur-[100px]'
-          animation='animate-[moveInCircle_30s_ease-in-out_infinite]'
-          className='w-204 h-204 max-md:w-104 max-md:h-104'
-        />
+        <BgShiningGroup items={aboutUsHero} />
         <h2 className='text-white font-unbounded text-[clamp(1.5rem,3vw,3rem)] z-1'>
           НАША ИСТОРИЯ
         </h2>

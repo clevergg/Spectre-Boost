@@ -20,6 +20,7 @@ export const FirstCardAdditions = () => {
             className='relative'
             onMouseEnter={() => setHoveredId(item.id)}
             onMouseLeave={() => setHoveredId(null)}
+            onTouchStart={() => setHoveredId(prev => (prev === item.id ? null : item.id))}
           >
             {/* Карточка услуги */}
             <div
@@ -34,21 +35,15 @@ export const FirstCardAdditions = () => {
                     item.isActive ? "bg-pink-gradient1" : "border-gray border-2"
                   }`}
                 >
-                  {item.isActive && (
-                    <IoCheckmarkSharp className='text-white w-[30px] h-5' />
-                  )}
+                  {item.isActive && <IoCheckmarkSharp className='text-white w-[30px] h-5' />}
                 </div>
-                <h3 className='text-white font-gilroyMedium text-[16px]/[100%]'>
-                  {item.title}
-                </h3>
+                <h3 className='text-white font-gilroyMedium text-[16px]/[100%]'>{item.title}</h3>
               </div>
 
               {item.isActive && (
                 <p
                   className={`text-black px-3 py-1.5 rounded-4xl font-gilroy font-bold text-[15px] shrink-0 ${
-                    item.isActive && index !== 0
-                      ? "bg-[#AF5061]"
-                      : "bg-white"
+                    item.isActive && index !== 0 ? "bg-[#AF5061]" : "bg-white"
                   }`}
                 >
                   {item.value}

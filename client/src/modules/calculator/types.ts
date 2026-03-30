@@ -22,3 +22,9 @@ export interface additionItem {
   isActive: boolean
   koef: number
 }
+
+export type showRankDiv = {
+  imageSrc: string
+  rankName: string
+  rating: number
+}

@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react"
-import { useDebounce } from "./UseDebounce"
 
 type WindowSizes = {
   width: number | null
@@ -12,18 +11,26 @@ export function useWindowSize(): WindowSizes {
     height: typeof window !== "undefined" ? window.innerHeight : null,
   })
 
-  const DebounceResize = useDebounce(() => {
-    setWindowSize({
-      width: window.innerWidth,
-      height: window.innerHeight,
-    })
-  }, 150)
-
   useEffect(() => {
     if (typeof window === "undefined") return
 
-    window.addEventListener("resize", DebounceResize)
-    return () => window.removeEventListener("resize", DebounceResize)
+    let timeoutId: ReturnType<typeof setTimeout>
+
+    const handleResize = () => {
+      clearTimeout(timeoutId)
+      timeoutId = setTimeout(() => {
+        setWindowSize({
+          width: window.innerWidth,
+          height: window.innerHeight,
+        })
+      }, 150)
+    }
+
+    window.addEventListener("resize", handleResize)
+    return () => {
+      window.removeEventListener("resize", handleResize)
+      clearTimeout(timeoutId)
+    }
   }, [])
 
   return windowSize

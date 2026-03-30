@@ -20,7 +20,12 @@ export const ServicesLinks = () => {
         ) : (
           <Link key={label} to={to} className='lg:flex-1'>
             <button
-              className={`w-full ${pathname === to ? "bg-violet" : "bg-transparent"} cursor-pointer border-violet border p-4 rounded-[11px]`}
+              className={`w-full cursor-pointer border p-4 rounded-[11px] transition-all duration-500
+    ${
+      pathname === to
+        ? "border-pink-gradient1 shadow-[0_0_15px_rgba(253,114,230,0.4),0_0_30px_rgba(253,114,230,0.15)]"
+        : "bg-transparent border-violet hover:shadow-[0_0_10px_rgba(253,114,230,0.2)]"
+    }`}
             >
               <p className='font-unbounded italic font-normal text-white text-[clamp(1rem,1.2vw,1.3rem)] text-center'>
                 {label}

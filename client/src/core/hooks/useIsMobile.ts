@@ -1,6 +1,6 @@
 import { useMemo } from "react"
 import { MOBILE_BREAKPOINT } from "../constants"
-import { useWindowSize } from "./useWindowsSize"
+import { useWindowSize } from "./useWindowSize"
 
 export const useIsMobile = () => {
   const { width } = useWindowSize()

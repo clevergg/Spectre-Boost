@@ -3,7 +3,7 @@ import { useBoostVariant, changeBoostVariant } from "../store/SurvivorStore"
 export const RadioSurvivor = () => {
   const boostType = useBoostVariant()
   return (
-    <div className='flex w-full gap-2 md:gap-4 pt-1 px-[calc(0.5rem+1.5vw)]'>
+    <div className='flex w-full gap-2 md:gap-4 px-[calc(0.5rem+1.5vw)]'>
       <label
         className={`flex items-center gap-2 px-3 sm:px-5 py-3 rounded-xl border cursor-pointer transition-colors flex-1 ${
           boostType === "survivor_pts"

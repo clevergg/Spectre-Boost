@@ -14,13 +14,13 @@ import { ScrollHandler } from "../../shared/ui/ScrollHandler"
 import { usePromoFromUrl } from "../../core/hooks/usePromoFromUrl"
 import SpectreFallback from "../../shared/ui/SpectreFallback"
 import { routes } from "../config/routes"
+import { ErrorBoundary } from "../../components/ErrorBoundary"
 
 const HomePage = lazy(() => import("../../pages/HomeRoute"))
 const ServicesPage = lazy(() => import("../../pages/ServicesRoute"))
 const AboutUsPage = lazy(() => import("../../pages/AboutUsRoute"))
 const AccountPage = lazy(() => import("../../pages/AccountRoute"))
 const SurvivorPage = lazy(() => import("../../pages/SurvivorRoute"))
-
 
 /**
  * Компонент внутри Router — вызывает хуки зависящие от роутера
@@ -34,28 +34,30 @@ export const MainRouter = () => {
   return (
     <Router>
       <AppInit />
-      <Suspense fallback={<SpectreFallback />}>
-        <ScrollHandler />
-        <Routes>
-          <Route element={<DefaultLayout />}>
-            <Route index element={<HomePage />} />
-            <Route path={routes.services} element={<ServicesPage />} />
-            <Route path={routes.aboutus} element={<AboutUsPage />} />
-            <Route path={routes.survivor} element={<SurvivorPage />} />
-          </Route>
+      <ErrorBoundary>
+        <Suspense fallback={<SpectreFallback />}>
+          <ScrollHandler />
+          <Routes>
+            <Route element={<DefaultLayout />}>
+              <Route index element={<HomePage />} />
+              <Route path={routes.services} element={<ServicesPage />} />
+              <Route path={routes.aboutus} element={<AboutUsPage />} />
+              <Route path={routes.survivor} element={<SurvivorPage />} />
+            </Route>
 
-          {/* Защищённые роуты — требуют авторизации */}
-          <Route
-            element={
-              <ProtectedRoute>
-                <UserAccountLayout />
-              </ProtectedRoute>
-            }
-          >
-            <Route path={routes.account} element={<AccountPage />} />
-          </Route>
-        </Routes>
-      </Suspense>
+            {/* Защищённые роуты — требуют авторизации */}
+            <Route
+              element={
+                <ProtectedRoute>
+                  <UserAccountLayout />
+                </ProtectedRoute>
+              }
+            >
+              <Route path={routes.account} element={<AccountPage />} />
+            </Route>
+          </Routes>
+        </Suspense>
+      </ErrorBoundary>
     </Router>
   )
 }

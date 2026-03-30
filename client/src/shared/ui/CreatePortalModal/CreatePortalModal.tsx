@@ -2,6 +2,7 @@ import { useEffect } from "react"
 import { createPortal } from "react-dom"
 import { FrameAnimation } from "../../../shared/ui/FrameAnimation"
 import type { ReactNode } from "react"
+import { lockScroll, unlockScroll } from "../../../core/helpers/controlScroll"
 
 interface AuthModalProps {
   isOpen: boolean
@@ -29,7 +30,17 @@ const CreatePortalModal = ({ isOpen, onClose, children, type = "default" }: Auth
     }
   }, [isOpen, onClose])
 
+  useEffect(() => {
+    if (isOpen) {
+      lockScroll()
+    }
+
+    return () => unlockScroll()
+  }, [isOpen])
+
   if (!isOpen) return null
+
+  const modalRootDiv = document.getElementById("modal-root")
 
   return createPortal(
     <FrameAnimation className='fixed inset-0 z-50 flex items-center justify-center min-w-[360px] bg-black/90 bg-opacity-70'>
@@ -40,7 +51,7 @@ const CreatePortalModal = ({ isOpen, onClose, children, type = "default" }: Auth
         {children}
       </div>
     </FrameAnimation>,
-    document.body
+    modalRootDiv!
   )
 }
 
