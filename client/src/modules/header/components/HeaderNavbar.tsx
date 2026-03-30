@@ -5,17 +5,31 @@ import { useIsBurgerOpen, handleChangeIsBurgerClick } from "../store/HeaderStore
 import scrollToTop from "../../../core/helpers/scrollToTop"
 import { routes } from "../../../app/config/routes"
 import { useIsMobile } from "../../../core/hooks/useIsMobile"
+import { useEffect, useRef } from "react"
 
 export const HeaderNavbar = () => {
   const { pathname } = useLocation()
   const isBurgerOpen = useIsBurgerOpen()
   const isMobile = useIsMobile()
-
+  const navbarRef = useRef<HTMLDivElement | null>(null)
   const handleLogoDeskClick = (): void => {
     if (!isMobile && pathname === routes.home) {
       scrollToTop()
     }
   }
+
+  useEffect(() => {
+    if (!isBurgerOpen) return
+
+    const handleClickOutside = (e: MouseEvent) => {
+      if (navbarRef.current && !navbarRef.current.contains(e.target as Node)) {
+        handleChangeIsBurgerClick(false)
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [navbarRef, isBurgerOpen])
 
   const handleBurgerClick = (): void => {
     handleChangeIsBurgerClick(!isBurgerOpen)
@@ -23,6 +37,7 @@ export const HeaderNavbar = () => {
   return (
     <div
       onClick={handleBurgerClick}
+      ref={navbarRef}
       className='flex max-md:flex-col max-md:justify-center items-center'
     >
       {!isMobile ? (

@@ -1,6 +1,7 @@
 import { lazy, useEffect, useState } from "react"
 import { type Order, cancelOrder } from "../../../core/api/orders.api"
 import { createReview } from "../../../core/api/reviews.api"
+import { unlockScroll } from "../../../core/helpers/controlScroll"
 
 interface OrderOpenModalProps {
   order: Order | null
@@ -8,9 +9,7 @@ interface OrderOpenModalProps {
   onClose: () => void
 }
 
-const CreatePortalModal = lazy(
-  () => import("../../../shared/ui/CreatePortalModal")
-)
+const CreatePortalModal = lazy(() => import("../../../shared/ui/CreatePortalModal"))
 
 const STATUS_CONFIG = {
   PENDING: {
@@ -35,11 +34,7 @@ const STATUS_CONFIG = {
   },
 } as const
 
-export function OrderOpenModal({
-  order,
-  isModalOpen,
-  onClose,
-}: OrderOpenModalProps) {
+export function OrderOpenModal({ order, isModalOpen, onClose }: OrderOpenModalProps) {
   const [isCancelling, setIsCancelling] = useState(false)
   const [reviewRating, setReviewRating] = useState(0)
   const [reviewText, setReviewText] = useState("")
@@ -49,7 +44,7 @@ export function OrderOpenModal({
 
   useEffect(() => {
     if (!isModalOpen) {
-      document.body.classList.remove("no-scroll")
+      unlockScroll()
       // Сбрасываем форму при закрытии
       setReviewRating(0)
       setReviewText("")
@@ -93,6 +88,7 @@ export function OrderOpenModal({
         text: reviewText,
       })
       setReviewSubmitted(true)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setReviewError(err.message || "Ошибка отправки")
     } finally {
@@ -196,7 +192,7 @@ export function OrderOpenModal({
 
             {/* Звёзды */}
             <div className='flex gap-2 mb-3'>
-              {[1, 2, 3, 4, 5].map((star) => (
+              {[1, 2, 3, 4, 5].map(star => (
                 <button
                   key={star}
                   onClick={() => setReviewRating(star)}
@@ -212,7 +208,7 @@ export function OrderOpenModal({
             {/* Текст */}
             <textarea
               value={reviewText}
-              onChange={(e) => setReviewText(e.target.value)}
+              onChange={e => setReviewText(e.target.value)}
               placeholder='Опишите ваш опыт (минимум 5 символов)...'
               maxLength={500}
               rows={3}

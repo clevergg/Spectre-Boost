@@ -41,7 +41,7 @@ export const HeaderUserMenu = () => {
             className='w-10 h-10 rounded-full object-cover'
           />
         ) : (
-          <div className='w-10 h-10 rounded-full bg-gradient-to-r from-pink-gradient1 to-pink-gradient2 flex items-center justify-center'>
+          <div className='w-10 h-10 rounded-full bg-linear-to-r from-pink-gradient1 to-pink-gradient2 flex items-center justify-center'>
             <span className='text-sm font-unbounded text-white'>
               {displayName.charAt(0).toUpperCase()}
             </span>

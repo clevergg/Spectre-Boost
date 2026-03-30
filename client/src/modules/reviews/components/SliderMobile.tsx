@@ -38,11 +38,10 @@ export const SliderMobile = ({ reviews, id }: ReviewsSliderMobileProps) => {
             )}
 
             <div className='flex flex-col gap-1'>
-              <h3 className='text-white text-lg font-semibold'>
-                {review.author}
-              </h3>
+              <h3 className='text-white text-lg font-semibold'>{review.author}</h3>
               <span className='text-white'>
-                {"★".repeat(review.rating)}{"☆".repeat(5 - review.rating)}
+                {"★".repeat(review.rating)}
+                {"☆".repeat(5 - review.rating)}
               </span>
               <span className='text-gray-400 text-sm'>{review.date}</span>
             </div>

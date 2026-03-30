@@ -3,7 +3,7 @@ import { RadioSurvivor } from "./RadioSurvivor"
 import { useBoostVariant } from "../store/SurvivorStore"
 import { detailsByBoostType } from "../data/FirstCardDetails"
 import { AnimatePresence, motion } from "framer-motion"
-import { Title } from "./Title"
+import { TitleTemplate } from "../../../shared/ui/TitleTemplate"
 
 const TextType = lazy(() => import("../../../shared/ui/TextType"))
 
@@ -11,12 +11,12 @@ export const FirstCard = () => {
   const boostVariant = useBoostVariant()
   const details = detailsByBoostType[boostVariant]
   return (
-    <article className='bg-transparent border lg:shrink-0 flex flex-col justify-between border-gray lg:flex-3 rounded-xl shadow-md py-12 lg:py-20 h-full gap-8'>
+    <article className='bg-transparent border lg:shrink-0 flex flex-col justify-between border-gray lg:flex-3 rounded-xl shadow-md py-12 lg:py-15 h-full gap-8'>
       <div className='flex flex-col justify-center items-center space-y-8'>
-        <Title
+        <TitleTemplate
           text='Рассчитайте стоимость'
           strong='буста'
-          className='text-[clamp(1.55rem,2.7vw,2rem)] text-center text-gradient-purple-blue max-lg:px-[calc(1rem+2vw)] [&_strong]:text-white font-unbounded'
+          className='text-[clamp(1.55rem,2.7vw,2rem)] text-gradient-purple-blue max-lg:px-[calc(1rem+2vw)] [&_strong]:text-white'
         />
         <TextType
           text={["Выживший — топ 50", "Мы всё сделаем"]}

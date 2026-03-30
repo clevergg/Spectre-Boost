@@ -72,7 +72,7 @@ export const RatingInput = ({
       {rank && (
         <div className='text-right shrink-0'>
           <p className='text-white text-[clamp(0.9rem,1.1vw,1.1rem)] font-semibold'>{rank.name}</p>
-          <p className='text-gray text-[clamp(0.75rem,0.85vw,0.85rem)]'>
+          <p className='text-gray text-[clamp(0.9rem,0.95vw,0.95rem)]'>
             {rank.pricePerHundred}₽/100
           </p>
         </div>

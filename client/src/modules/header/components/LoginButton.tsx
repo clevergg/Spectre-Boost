@@ -5,7 +5,6 @@ export const LogginButton = () => {
 
   const openModal = (): void => {
     handleChangeIsModalClick(!isModalOpen)
-    document.body.classList.toggle("no-scroll")
   }
   return (
     <GradientButton onClick={() => openModal()} className='max-md:hidden px-8 py-4 rounded-4xl'>

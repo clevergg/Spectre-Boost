@@ -15,27 +15,33 @@
  */
 
 import { useEffect } from "react"
-import { useWindowSize } from "../../core/hooks/useWindowsSize"
+import { useLocation } from "react-router-dom"
+import { useIsMobile } from "../../core/hooks/useIsMobile"
+import { useWindowSize } from "../../core/hooks/useWindowSize"
+import { useIsAuthenticated } from "../../core/stores/authStore"
 import { AuthorizationModalHeader } from "./components/AuthorizationModalHeader"
 import { HeaderNavbar } from "./components/HeaderNavbar"
-import { LogginButton } from "./components/LoginButton"
 import { HeaderUserMenu } from "./components/HeaderUserMenu"
+import { LogginButton } from "./components/LoginButton"
 import { useHideHeader } from "./hooks/useHideHeader"
 import { handleChangeIsBurgerClick } from "./store/HeaderStore"
-import { useIsAuthenticated } from "../../core/stores/authStore"
-import { useIsMobile } from "../../core/hooks/useIsMobile"
 
 export const Header = () => {
   const isHiding = useHideHeader()
   const { width } = useWindowSize()
   const isAuthenticated = useIsAuthenticated()
   const isMobile = useIsMobile()
+  const pathname = useLocation()
 
   useEffect(() => {
     if (isHiding || !isMobile) {
       handleChangeIsBurgerClick(false)
     }
   }, [isHiding, width, isMobile])
+
+  useEffect(() => {
+    handleChangeIsBurgerClick(false)
+  }, [pathname])
 
   return (
     <header
