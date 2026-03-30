@@ -9,8 +9,8 @@ import { PrismaService } from '../prisma/prisma.service';
 import { TelegramAuthDto } from './dto/telegram-auth.dto';
 
 interface JwtPayload {
-  sub: number;       // user.id
-  telegramId: string; // bigint as string
+  sub: number;
+  telegramId: string;
   role: string;
 }
 
@@ -19,43 +19,161 @@ interface TokenPair {
   refreshToken: string;
 }
 
+interface PendingLogin {
+  code: string;
+  createdAt: number;
+  telegramId?: bigint;
+  userId?: number;
+  confirmed: boolean;
+}
+
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
 
+  // Хранилище ожидающих кодов авторизации (в памяти)
+  // В проде можно заменить на Redis
+  private pendingLogins = new Map<string, PendingLogin>();
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
-  ) {}
+  ) {
+    // Очистка просроченных кодов каждые 5 минут
+    setInterval(() => this.cleanupExpiredCodes(), 5 * 60 * 1000);
+  }
+
+  // ─── Авторизация через код (новый способ) ───
 
   /**
-   * Верификация данных Telegram Login Widget
-   * https://core.telegram.org/widgets/login#checking-authorization
+   * Генерировать уникальный 6-значный код для авторизации.
+   * Фронт вызывает POST /api/auth/code → получает код → показывает юзеру.
    */
+  generateLoginCode(): { code: string; expiresIn: number } {
+    // Генерируем 6-значный код
+    const code = crypto.randomInt(100000, 999999).toString();
+
+    // Сохраняем с TTL 5 минут
+    this.pendingLogins.set(code, {
+      code,
+      createdAt: Date.now(),
+      confirmed: false,
+    });
+
+    this.logger.log(`Login code generated: ${code}`);
+
+    return { code, expiresIn: 300 }; // 5 минут
+  }
+
+  /**
+   * Бот подтверждает код — привязывает Telegram юзера к коду.
+   * Вызывается когда юзер пишет боту /login XXXXXX.
+   */
+  async confirmLoginCode(code: string, telegramId: bigint): Promise<boolean> {
+    const pending = this.pendingLogins.get(code);
+
+    if (!pending) {
+      return false; // код не найден
+    }
+
+    // Проверяем срок — 5 минут
+    if (Date.now() - pending.createdAt > 5 * 60 * 1000) {
+      this.pendingLogins.delete(code);
+      return false; // истёк
+    }
+
+    if (pending.confirmed) {
+      return false; // уже использован
+    }
+
+    // Создаём/обновляем юзера
+    const user = await this.prisma.user.upsert({
+      where: { telegramId },
+      update: {},
+      create: {
+        telegramId,
+      },
+    });
+
+    // Подтверждаем код
+    pending.telegramId = telegramId;
+    pending.userId = user.id;
+    pending.confirmed = true;
+
+    this.logger.log(`Login code ${code} confirmed by TG user ${telegramId}`);
+
+    return true;
+  }
+
+  /**
+   * Фронт проверяет код — если подтверждён, возвращает JWT.
+   * Фронт вызывает POST /api/auth/code/check каждые 2 сек.
+   */
+  async checkLoginCode(code: string): Promise<(TokenPair & { user: any }) | null> {
+    const pending = this.pendingLogins.get(code);
+
+    if (!pending || !pending.confirmed || !pending.userId) {
+      return null;
+    }
+
+    // Код подтверждён — генерируем JWT
+    const user = await this.prisma.user.findUnique({
+      where: { id: pending.userId },
+    });
+
+    if (!user) return null;
+
+    // Удаляем использованный код
+    this.pendingLogins.delete(code);
+
+    const tokens = this.generateTokens({
+      sub: user.id,
+      telegramId: user.telegramId.toString(),
+      role: user.role,
+    });
+
+    this.logger.log(`User logged in via code: ${user.username || user.telegramId}`);
+
+    return {
+      ...tokens,
+      user: this.serializeUser(user),
+    };
+  }
+
+  /**
+   * Очистка просроченных кодов (старше 5 минут)
+   */
+  private cleanupExpiredCodes() {
+    const now = Date.now();
+    for (const [code, pending] of this.pendingLogins) {
+      if (now - pending.createdAt > 5 * 60 * 1000) {
+        this.pendingLogins.delete(code);
+      }
+    }
+  }
+
+  // ─── Авторизация через Telegram Login Widget (старый способ — оставляем) ───
+
   verifyTelegramAuth(data: TelegramAuthDto): boolean {
     const { hash, ...authData } = data;
 
-    // 1. Проверяем что auth_date не старше 1 часа
     const now = Math.floor(Date.now() / 1000);
     if (now - authData.auth_date > 3600) {
       this.logger.warn('Telegram auth data is too old');
       return false;
     }
 
-    // 2. Создаём data-check-string (все поля кроме hash, отсортированные)
     const checkString = Object.keys(authData)
       .sort()
       .filter((key) => authData[key as keyof typeof authData] !== undefined)
       .map((key) => `${key}=${authData[key as keyof typeof authData]}`)
       .join('\n');
 
-    // 3. Secret key = SHA256(BOT_TOKEN)
     const secretKey = crypto
       .createHash('sha256')
       .update(process.env.BOT_TOKEN!)
       .digest();
 
-    // 4. HMAC-SHA256(data-check-string, secret_key)
     const hmac = crypto
       .createHmac('sha256', secretKey)
       .update(checkString)
@@ -64,17 +182,12 @@ export class AuthService {
     return hmac === hash;
   }
 
-  /**
-   * Авторизация через Telegram: верификация + создание/обновление юзера + JWT
-   */
   async loginWithTelegram(dto: TelegramAuthDto): Promise<TokenPair & { user: any }> {
-    // 1. Верифицируем данные от Telegram
     const isValid = this.verifyTelegramAuth(dto);
     if (!isValid) {
       throw new UnauthorizedException('Invalid Telegram auth data');
     }
 
-    // 2. Создаём или обновляем пользователя
     const user = await this.prisma.user.upsert({
       where: { telegramId: BigInt(dto.id) },
       update: {
@@ -94,23 +207,20 @@ export class AuthService {
 
     this.logger.log(`User logged in: ${user.username || user.telegramId}`);
 
-    // 3. Генерируем JWT пару
     const tokens = this.generateTokens({
       sub: user.id,
       telegramId: user.telegramId.toString(),
       role: user.role,
     });
 
-    // 4. Сериализуем BigInt для ответа
     return {
       ...tokens,
       user: this.serializeUser(user),
     };
   }
 
-  /**
-   * Обновление access token по refresh token
-   */
+  // ─── Общие методы ───
+
   async refreshTokens(refreshToken: string): Promise<TokenPair> {
     try {
       const payload = this.jwtService.verify<JwtPayload>(refreshToken, {
@@ -135,9 +245,6 @@ export class AuthService {
     }
   }
 
-  /**
-   * Получить текущего пользователя по ID
-   */
   async getCurrentUser(userId: number) {
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
@@ -150,12 +257,7 @@ export class AuthService {
     return this.serializeUser(user);
   }
 
-  /**
-   * Генерация пары токенов
-   */
   private generateTokens(payload: JwtPayload): TokenPair {
-    // Spread в новый объект — jwtService.sign() ожидает plain object,
-    // а не экземпляр класса/интерфейса. Spread создаёт чистый Record.
     const tokenPayload = { ...payload };
 
     const accessToken = this.jwtService.sign(tokenPayload, {
@@ -170,9 +272,6 @@ export class AuthService {
     return { accessToken, refreshToken };
   }
 
-  /**
-   * Сериализация User (BigInt → string)
-   */
   private serializeUser(user: any) {
     return {
       ...user,

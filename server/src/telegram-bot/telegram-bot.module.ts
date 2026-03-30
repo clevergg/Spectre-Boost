@@ -6,6 +6,7 @@ import { UsersModule } from '../users/users.module';
 import { OrdersModule } from '../orders/orders.module';
 import { ReviewsModule } from '../reviews/reviews.module';
 import { PromoModule } from '../promo/promo.module';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { PromoModule } from '../promo/promo.module';
     OrdersModule,
     ReviewsModule,
     PromoModule,
+    AuthModule,
   ],
   providers: [TelegramBotService, TelegramBotUpdate],
   exports: [TelegramBotService],
