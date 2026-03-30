@@ -14,6 +14,7 @@ import {
   workerManageKeyboard,
 } from './keyboards/inline-keyboards';
 import { Role, OrderStatus } from '@prisma/client';
+import { AuthService } from '../auth/auth.service';
 
 @Update()
 export class TelegramBotUpdate {
@@ -26,6 +27,7 @@ export class TelegramBotUpdate {
     private readonly reviewsService: ReviewsService,
     private readonly promoService: PromoService,
     private readonly botService: TelegramBotService,
+    private readonly authService: AuthService,
   ) {}
 
   /**
@@ -88,6 +90,68 @@ export class TelegramBotUpdate {
       { parse_mode: 'HTML' },
     );
     return;
+  }
+  @Command('login')
+  async onLogin(@Ctx() ctx: Context) {
+    const from = ctx.from;
+    if (!from) return undefined;
+
+    // @ts-ignore
+    const text = ctx.message?.text || '';
+    const parts = text.split(' ');
+
+    if (parts.length < 2) {
+      await ctx.reply(
+        '🔐 <b>Авторизация на сайте</b>\n\n' +
+        'Введите код с сайта:\n' +
+        '<code>/login 123456</code>',
+        { parse_mode: 'HTML' },
+      );
+      return undefined;
+    }
+
+    const code = parts[1].trim();
+
+    if (!/^\d{6}$/.test(code)) {
+      await ctx.reply('❌ Код должен содержать 6 цифр.');
+      return undefined;
+    }
+
+    // Обновляем данные юзера
+    await this.prisma.user.upsert({
+      where: { telegramId: BigInt(from.id) },
+      update: {
+        username: from.username || null,
+        firstName: from.first_name || null,
+        lastName: from.last_name || null,
+      },
+      create: {
+        telegramId: BigInt(from.id),
+        username: from.username || null,
+        firstName: from.first_name || null,
+        lastName: from.last_name || null,
+      },
+    });
+
+    const confirmed = await this.authService.confirmLoginCode(
+      code,
+      BigInt(from.id),
+    );
+
+    if (confirmed) {
+      await ctx.reply(
+        '✅ <b>Авторизация успешна!</b>\n\n' +
+        'Вернитесь на сайт — вы уже вошли.',
+        { parse_mode: 'HTML' },
+      );
+    } else {
+      await ctx.reply(
+        '❌ Код недействителен или истёк.\n' +
+        'Получите новый код на сайте.',
+      );
+    }
+
+    return undefined;
   }
 
   /**
