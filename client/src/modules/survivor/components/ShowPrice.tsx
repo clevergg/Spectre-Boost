@@ -57,7 +57,7 @@ export const ShowPrice = ({ promo }: ShowPriceProps) => {
   }
 
   return (
-    <div className='flex flex-col items-center pb-6 gap-3'>
+    <div className='flex flex-col items-center pb-10 gap-3'>
       <div className='text-center'>
         {promo && amount > 0 ? (
           <>
@@ -83,15 +83,11 @@ export const ShowPrice = ({ promo }: ShowPriceProps) => {
         disabled={amount <= 0 || isProcessing}
         className={`w-full py-3 rounded-xl font-gilroy text-[clamp(1rem,1.2vw,1.2rem)] font-semibold transition-all ${
           amount > 0 && !isProcessing
-            ? "bg-gradient-to-r from-pink-gradient1 to-pink-gradient2 text-white cursor-pointer hover:opacity-90"
+            ? "bg-linear-to-r from-pink-gradient1 to-pink-gradient2 text-white cursor-pointer hover:opacity-90"
             : "bg-gray-800 text-gray-500 cursor-not-allowed"
         }`}
       >
-        {!isAuthenticated
-          ? "Войдите чтобы заказать"
-          : isProcessing
-            ? "Обработка..."
-            : "Оплатить"}
+        {!isAuthenticated ? "Войдите чтобы заказать" : isProcessing ? "Обработка..." : "Оплатить"}
       </button>
     </div>
   )

@@ -4,8 +4,8 @@ import { Questions } from "../shared/ui/Questions"
 import { aboutUsRouteClass, baseLayoutClass } from "./constants"
 import { SEO } from "../core/components/SEO"
 import { SEO_CONFIG } from "../core/config/seo.config"
-import { BgShiningGroup } from "../shared/ui/BackgroudShining/BgShiningGroup"
-import { aboutUsShinings } from "../shared/ui/BackgroudShining/BgShiningSets"
+import { BgShiningGroup } from "../shared/ui/BackgroundShining/BgShiningGroup"
+import { aboutUsShinings } from "../shared/ui/BackgroundShining/BgShiningSets"
 
 const Features = lazy(() => import("../shared/ui/Features"))
 const Reviews = lazy(() => import("../modules/reviews"))

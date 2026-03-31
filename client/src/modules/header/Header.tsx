@@ -22,7 +22,7 @@ import { useIsAuthenticated } from "../../core/stores/authStore"
 import { AuthorizationModalHeader } from "./components/AuthorizationModalHeader"
 import { HeaderNavbar } from "./components/HeaderNavbar"
 import { HeaderUserMenu } from "./components/HeaderUserMenu"
-import { LogginButton } from "./components/LoginButton"
+import { LoginButton } from "./components/LoginButton"
 import { useHideHeader } from "./hooks/useHideHeader"
 import { handleChangeIsBurgerClick } from "./store/HeaderStore"
 
@@ -55,7 +55,7 @@ export const Header = () => {
         <HeaderNavbar />
 
         {/* Авторизован — показываем меню юзера, нет — кнопку "Войти" */}
-        {isAuthenticated ? <HeaderUserMenu /> : <LogginButton />}
+        {isAuthenticated ? <HeaderUserMenu /> : <LoginButton />}
 
         <AuthorizationModalHeader />
       </div>

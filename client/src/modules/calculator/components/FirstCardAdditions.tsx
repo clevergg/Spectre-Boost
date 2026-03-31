@@ -12,7 +12,7 @@ export const FirstCardAdditions = () => {
   const [hoveredId, setHoveredId] = useState<number | null>(null)
 
   return (
-    <div className='w-full mx-auto'>
+    <div className='w-full pb-10 mx-auto'>
       <div className='grid grid-cols-1 md:grid-cols-2 gap-3'>
         {items.map((item, index) => (
           <div
@@ -23,9 +23,9 @@ export const FirstCardAdditions = () => {
             onTouchStart={() => setHoveredId(prev => (prev === item.id ? null : item.id))}
           >
             {/* Карточка услуги */}
-            <div
+            <button
               onClick={() => handleItemClick(item.id)}
-              className={`p-4 rounded-xl flex flex-row items-center justify-between border-2 h-[75px] cursor-pointer transition-colors ${
+              className={`p-4 w-full rounded-xl flex flex-row items-center justify-between border-2 h-[75px] cursor-pointer transition-colors ${
                 item.isActive ? "border-pink-gradient1" : "border-gray"
               } bg-black`}
             >
@@ -49,7 +49,7 @@ export const FirstCardAdditions = () => {
                   {item.value}
                 </p>
               )}
-            </div>
+            </button>
 
             {/* Тултип с описанием */}
             {hoveredId === item.id && (

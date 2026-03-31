@@ -1,8 +1,8 @@
 import { Account } from "../modules/userAccount"
 import { SEO } from "../core/components/SEO"
 import { SEO_CONFIG } from "../core/config/seo.config"
-import { BgShiningGroup } from "../shared/ui/BackgroudShining/BgShiningGroup"
-import { accountShinings } from "../shared/ui/BackgroudShining/BgShiningSets"
+import { BgShiningGroup } from "../shared/ui/BackgroundShining/BgShiningGroup"
+import { accountShinings } from "../shared/ui/BackgroundShining/BgShiningSets"
 
 const AccountRoute = () => {
   return (

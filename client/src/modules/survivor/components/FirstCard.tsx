@@ -11,7 +11,7 @@ export const FirstCard = () => {
   const boostVariant = useBoostVariant()
   const details = detailsByBoostType[boostVariant]
   return (
-    <article className='bg-transparent border lg:shrink-0 flex flex-col justify-between border-gray lg:flex-3 rounded-xl shadow-md py-12 lg:py-15 h-full gap-8'>
+    <article className='bg-transparent border lg:shrink-0 flex flex-col justify-between border-gray lg:flex-3 rounded-xl shadow-md pt-12 lg:pt-15 h-full gap-6'>
       <div className='flex flex-col justify-center items-center space-y-8'>
         <TitleTemplate
           text='Рассчитайте стоимость'
@@ -40,7 +40,7 @@ export const FirstCard = () => {
             duration: 0.4,
             ease: "easeInOut",
           }}
-          className={"flex flex-col space-y-5 px-[calc(0.5rem+1.5vw)]"}
+          className={"flex pb-10 flex-col space-y-5 px-[calc(0.5rem+1.5vw)]"}
         >
           <h3 className='text-[clamp(1.1rem,1.5vw,1.3rem)] font-unbounded text-white text-center'>
             Как это работает

@@ -64,7 +64,7 @@ export const ShowPrice = ({ promo }: ShowPriceProps) => {
   }
 
   return (
-    <div className='flex flex-col items-center px-5 pb-6 gap-3'>
+    <div className='flex flex-col pt-5 items-center pb-10 gap-3'>
       <div className='text-center'>
         {promo && amount > 0 ? (
           <>

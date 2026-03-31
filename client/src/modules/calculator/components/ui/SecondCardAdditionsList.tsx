@@ -9,7 +9,7 @@ export const SecondCardAdditionsList = () => {
   const additions = useItems()
 
   return (
-    <ul className='w-full px-5 grid grid-cols-1 gap-3'>
+    <ul className='w-full mb-6 px-5 grid grid-cols-1 gap-3'>
       {additions.map(item => (
         <li key={item.id} className='flex items-center gap-4 min-h-[30px]'>
           <p

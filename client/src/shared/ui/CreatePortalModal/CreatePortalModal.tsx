@@ -19,9 +19,6 @@ const CreatePortalModal = ({ isOpen, onClose, children, type = "default" }: Auth
 
     if (isOpen) {
       document.addEventListener("keydown", handleEscape)
-      document.body.style.overflow = "hidden"
-    } else {
-      document.body.style.overflow = "unset"
     }
 
     return () => {

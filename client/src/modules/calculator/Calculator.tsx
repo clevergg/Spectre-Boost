@@ -17,7 +17,7 @@ const Calculator = () => {
       />
       {/* <BrokenComponent /> */}
       <ServicesLinks />
-      <FrameAnimation className='flex max-lg:flex-col max-lg:space-y-10 lg:space-x-5 xl:space-x-10 lg:h-[680px] justify-between z-1'>
+      <FrameAnimation className='flex max-lg:flex-col max-lg:space-y-10 lg:space-x-5 xl:space-x-10 justify-between z-1 min-h-full'>
         <FirstCard />
 
         <SecondCard />

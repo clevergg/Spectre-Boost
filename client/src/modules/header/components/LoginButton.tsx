@@ -1,6 +1,6 @@
 import { GradientButton } from "../../../shared/ui/GradientButton"
 import { handleChangeIsModalClick, useIsModalOpen } from "../store/HeaderStore"
-export const LogginButton = () => {
+export const LoginButton = () => {
   const isModalOpen = useIsModalOpen()
 
   const openModal = (): void => {

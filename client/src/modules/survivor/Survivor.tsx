@@ -12,7 +12,7 @@ const Survivor = () => {
         className='w-full text-[clamp(1.8rem,4.8vw,5rem)]/[115%] md:pb-5'
       />
       <ServicesLinks />
-      <FrameAnimation className='w-full max-lg:flex-col flex max-lg:space-y-10 lg:gap-5 xl:gap-10  z-1 lg:h-[680px]'>
+      <FrameAnimation className='w-full max-lg:flex-col flex max-lg:space-y-10 lg:gap-5 xl:gap-10  z-1'>
         <FirstCard />
         <SecondCard />
       </FrameAnimation>
