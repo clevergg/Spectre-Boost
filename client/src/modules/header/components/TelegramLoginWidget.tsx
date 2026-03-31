@@ -35,7 +35,7 @@ export const TelegramLoginWidget = () => {
       // Таймер обратного отсчёта
       if (timerRef.current) clearInterval(timerRef.current)
       timerRef.current = setInterval(() => {
-        setTimeLeft((prev) => {
+        setTimeLeft(prev => {
           if (prev <= 1) {
             if (timerRef.current) clearInterval(timerRef.current)
             if (pollingRef.current) clearInterval(pollingRef.current)
@@ -85,14 +85,14 @@ export const TelegramLoginWidget = () => {
       ) : code ? (
         <>
           {/* Код */}
-          <div className='bg-white/5 border border-white/10 rounded-2xl px-8 py-5 text-center'>
+          <div className='bg-white/5 border border-white/10 rounded-2xl w-full py-5 text-center'>
             <p className='text-gray-400 font-gilroy text-[clamp(0.85rem,0.95vw,0.95rem)] mb-2'>
               Ваш код для входа
             </p>
-            <p className='text-white font-unbounded text-[clamp(2rem,3vw,3rem)] tracking-[0.3em]'>
+            <p className='text-white font-unbounded text-[clamp(1.6rem,2.2vw,2.2rem)] tracking-[0.3em]'>
               {code}
             </p>
-            <p className='text-gray-500 font-gilroy text-[clamp(0.75rem,0.85vw,0.85rem)] mt-2'>
+            <p className='text-gray-500 font-gilroy text-[clamp(0.85rem,0.9vw,0.9rem)] mt-2'>
               Действителен {formatTime(timeLeft)}
             </p>
           </div>
@@ -115,7 +115,7 @@ export const TelegramLoginWidget = () => {
             className='w-full flex items-center justify-center gap-3 px-6 py-3 bg-[#2AABEE] hover:bg-[#229ED9] rounded-xl transition-colors'
           >
             <svg width='24' height='24' viewBox='0 0 24 24' fill='white'>
-              <path d='M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.161c-.18 1.897-.962 6.502-1.359 8.627-.168.9-.5 1.201-.82 1.23-.697.064-1.226-.461-1.901-.903-1.056-.692-1.653-1.123-2.678-1.799-1.185-.781-.417-1.21.258-1.911.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.139-5.062 3.345-.479.329-.913.489-1.302.481-.428-.009-1.252-.242-1.865-.442-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.831-2.529 6.998-3.015 3.333-1.386 4.025-1.627 4.477-1.635.099-.002.321.023.465.141.12.098.153.229.168.327.016.098.035.322.02.496z'/>
+              <path d='M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.562 8.161c-.18 1.897-.962 6.502-1.359 8.627-.168.9-.5 1.201-.82 1.23-.697.064-1.226-.461-1.901-.903-1.056-.692-1.653-1.123-2.678-1.799-1.185-.781-.417-1.21.258-1.911.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.139-5.062 3.345-.479.329-.913.489-1.302.481-.428-.009-1.252-.242-1.865-.442-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.831-2.529 6.998-3.015 3.333-1.386 4.025-1.627 4.477-1.635.099-.002.321.023.465.141.12.098.153.229.168.327.016.098.035.322.02.496z' />
             </svg>
             <span className='text-white font-gilroyMedium text-[clamp(1rem,1.1vw,1.1rem)]'>
               Открыть бота
@@ -132,9 +132,7 @@ export const TelegramLoginWidget = () => {
         </>
       ) : error ? (
         <>
-          <p className='text-red-400 font-gilroy text-[clamp(0.9rem,1vw,1rem)]'>
-            {error}
-          </p>
+          <p className='text-red-400 font-gilroy text-[clamp(0.9rem,1vw,1rem)]'>{error}</p>
           <button
             onClick={requestCode}
             className='px-6 py-2 rounded-xl bg-white/10 text-white font-gilroy hover:bg-white/20 transition-colors'

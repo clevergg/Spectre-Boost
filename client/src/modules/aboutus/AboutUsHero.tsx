@@ -1,7 +1,7 @@
 import { FaCircleArrowRight } from "react-icons/fa6"
 import { GradientButton } from "../../shared/ui/GradientButton"
-import { BgShiningGroup } from "../../shared/ui/BackgroudShining/BgShiningGroup"
-import { aboutUsHero } from "../../shared/ui/BackgroudShining/BgShiningSets"
+import { BgShiningGroup } from "../../shared/ui/BackgroundShining/BgShiningGroup"
+import { aboutUsHero } from "../../shared/ui/BackgroundShining/BgShiningSets"
 export const AboutUsHero = () => {
   return (
     <section className='px-7 w-full relative py-[calc(4rem+4vw)]'>

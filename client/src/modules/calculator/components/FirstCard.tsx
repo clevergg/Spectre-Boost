@@ -7,8 +7,8 @@ const TextType = lazy(() => import("../../../shared/ui/TextType"))
 
 export const FirstCard = () => {
   return (
-    <article className='bg-transparent border flex flex-col justify-between border-gray lg:w-[60%] rounded-xl shadow-md py-12 lg:py-20 h-full  gap-8'>
-      <div className='flex flex-col justify-center items-center space-y-8'>
+    <article className='bg-transparent border flex flex-col justify-between border-gray lg:w-[60%] rounded-xl shadow-md pt-12 lg:pt-20 gap-6 '>
+      <div className='flex flex-col justify-center items-center space-y-6'>
         <TitleTemplate
           text='Рассчитайте стоимость'
           strong='буста'

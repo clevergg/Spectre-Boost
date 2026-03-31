@@ -67,12 +67,12 @@ export const PromoCodeInput = ({ onApply }: PromoCodeInputProps) => {
     <div className='w-full'>
       {applied ? (
         <div className='flex items-center justify-between bg-green-900/20 border border-green-700/50 rounded-xl px-4 py-3'>
-          <p className='text-green-400 font-gilroyMedium text-[clamp(0.9rem,1vw,1rem)]'>
+          <p className='text-green-400 font-gilroy text-[clamp(1.1rem,1.2vw,1.2rem)]'>
             🏷 {applied.code} — скидка {applied.discount}%
           </p>
           <button
             onClick={handleRemove}
-            className='text-red-400 hover:text-red-300 font-gilroy text-[clamp(0.85rem,0.95vw,0.95rem)] transition-colors'
+            className='text-red-400 hover:text-red-300 font-gilroy text-[clamp(0.95rem,1vw,1rem)] transition-colors'
           >
             Убрать
           </button>

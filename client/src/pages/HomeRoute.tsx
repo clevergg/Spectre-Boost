@@ -4,8 +4,8 @@ import { Questions } from "../shared/ui/Questions"
 import { baseLayoutClass, HomeQuestionsLayoutClass } from "./constants"
 import { SEO } from "../core/components/SEO"
 import { SEO_CONFIG } from "../core/config/seo.config"
-import { BgShiningGroup } from "../shared/ui/BackgroudShining/BgShiningGroup"
-import { homeCardsShinings, homeHeroShinings } from "../shared/ui/BackgroudShining/BgShiningSets"
+import { BgShiningGroup } from "../shared/ui/BackgroundShining/BgShiningGroup"
+import { homeCardsShinings, homeHeroShinings } from "../shared/ui/BackgroundShining/BgShiningSets"
 
 const Reviews = lazy(() => import("../modules/reviews"))
 
