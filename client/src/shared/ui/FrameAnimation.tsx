@@ -1,18 +1,22 @@
 import { useLocation } from "react-router-dom"
 import { AnimatePresence, motion } from "framer-motion"
-import type { ReactNode } from 'react'
+import type { ReactNode } from "react"
 interface FrameAnimationProps {
   children: ReactNode
   className: string
   onClick?: () => void
+  animateKey?: string
 }
-export const FrameAnimation = ({ children, className, onClick }: FrameAnimationProps) => {
-  const location = useLocation()
-
+export const FrameAnimation = ({
+  children,
+  className,
+  onClick,
+  animateKey,
+}: FrameAnimationProps) => {
   return (
     <AnimatePresence mode='wait'>
       <motion.div
-        key={location.pathname}
+        key={animateKey}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{

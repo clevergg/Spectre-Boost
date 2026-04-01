@@ -9,8 +9,7 @@ import {
   useMemo,
   useCallback,
 } from "react"
-import { gsap } from "gsap"
-import type { ReactNode } from 'react'
+import type { ReactNode } from "react"
 
 interface TextTypeProps {
   className?: string
@@ -45,7 +44,7 @@ const TextType = ({
   showCursor = true,
   hideCursorWhileTyping = false,
   cursorCharacter = "|",
-  cursorClassName = "",
+  cursorClassName = "animate-[blink_1s_ease-in-out_infinite]",
   cursorBlinkDuration = 0.5,
   textColors = [],
   variableSpeed,
@@ -91,19 +90,6 @@ const TextType = ({
     observer.observe(containerRef.current)
     return () => observer.disconnect()
   }, [startOnVisible])
-
-  useEffect(() => {
-    if (showCursor && cursorRef.current) {
-      gsap.set(cursorRef.current, { opacity: 1 })
-      gsap.to(cursorRef.current, {
-        opacity: 0,
-        duration: cursorBlinkDuration,
-        repeat: -1,
-        yoyo: true,
-        ease: "power2.inOut",
-      })
-    }
-  }, [showCursor, cursorBlinkDuration])
 
   useEffect(() => {
     if (!isVisible) return

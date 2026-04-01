@@ -18,7 +18,7 @@ export const Account = () => {
       case "support":
         return <AccountSupport />
       default:
-        return <Account />
+        return null
     }
   }
 

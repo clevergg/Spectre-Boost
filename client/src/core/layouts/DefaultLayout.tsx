@@ -1,16 +1,15 @@
-import { Outlet } from "react-router-dom"
 import { Footer } from "../../modules/footer/Footer"
 import { Header } from "../../modules/header"
-import { FrameAnimation } from "../../shared/ui/FrameAnimation"
+import { AnimatedOutlet } from "./AnimatedOutlet"
 
-export const DefaultLayout = () => {
+export const DefaultLayout = ({ mainClassName }: { mainClassName?: string }) => {
   return (
-    <FrameAnimation className='min-h-screen flex flex-col items-center min-w-[360px] overflow-hidden w-full bg-bgblack'>
+    <div className='min-h-screen flex flex-col items-center min-w-[360px] overflow-hidden w-full bg-bgblack'>
       <Header />
-      <main className={`grow flex flex-col justify-center items-center`}>
-        <Outlet />
+      <main className={mainClassName}>
+        <AnimatedOutlet />
       </main>
       <Footer />
-    </FrameAnimation>
+    </div>
   )
 }
