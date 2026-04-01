@@ -37,7 +37,7 @@ export const FirstCardAdditions = () => {
                 >
                   {item.isActive && <IoCheckmarkSharp className='text-white w-[30px] h-5' />}
                 </div>
-                <h3 className='text-white font-gilroyMedium text-[16px]/[100%]'>{item.title}</h3>
+                <p className='text-white font-gilroyMedium text-[16px]/[100%]'>{item.title}</p>
               </div>
 
               {item.isActive && (

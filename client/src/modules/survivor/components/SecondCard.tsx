@@ -1,10 +1,10 @@
 import { GoClockFill } from "react-icons/go"
 import Survivor from "../../../assets/pubgIcons/prodIcons/Survivor.png"
-import { PromoCodeInput } from "./PromoCodeInput"
 import { useState } from "react"
 import type { PromoValidation } from "../../../core/api/promo.api"
 import { ShowPrice } from "./ShowPrice"
 import { TitleTemplate } from "../../../shared/ui/TitleTemplate"
+import { PromoCodeInput } from "../../../components/PromoCodeInput"
 
 export const SecondCard = () => {
   const [promo, setPromo] = useState<PromoValidation | null>(null)

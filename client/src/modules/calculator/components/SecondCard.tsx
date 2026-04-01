@@ -7,9 +7,9 @@ import { TitleTemplate } from "../../../shared/ui/TitleTemplate"
 
 import { SecondCardAdditionsList } from "./ui/SecondCardAdditionsList"
 import { ShowPrice } from "./ui/ShowPrice"
-import { PromoCodeInput } from "./PromoCodeInput"
 import { type PromoValidation } from "../../../core/api/promo.api"
 import { ShowRanksSection } from "./ShowRanksSection"
+import { PromoCodeInput } from "../../../components/PromoCodeInput"
 
 export const SecondCard = () => {
   const items = useItems()

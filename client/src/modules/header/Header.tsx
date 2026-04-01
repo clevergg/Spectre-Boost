@@ -1,23 +1,5 @@
-/**
- * Header — обновлённый хедер.
- *
- * БЫЛО: useIsAuthorized() из HeaderStore (boolean, ни к чему не привязан)
- * СТАЛО: useIsAuthenticated() из authStore (реальная проверка JWT)
- *
- * Что изменилось:
- * - Кнопка "Войти" показывается/скрывается по реальному состоянию авторизации
- * - Когда юзер авторизован — вместо "Войти" можно показать аватар/меню
- * - Импорт useIsAuthorized заменён на useIsAuthenticated
- *
- * Что НЕ изменилось:
- * - isModalOpen, isBurgerOpen остаются в HeaderStore (это UI-состояние)
- * - Вся логика бургера и скрытия хедера
- */
-
 import { useEffect } from "react"
 import { useLocation } from "react-router-dom"
-import { useIsMobile } from "../../core/hooks/useIsMobile"
-import { useWindowSize } from "../../core/hooks/useWindowSize"
 import { useIsAuthenticated } from "../../core/stores/authStore"
 import { AuthorizationModalHeader } from "./components/AuthorizationModalHeader"
 import { HeaderNavbar } from "./components/HeaderNavbar"
@@ -25,13 +7,14 @@ import { HeaderUserMenu } from "./components/HeaderUserMenu"
 import { LoginButton } from "./components/LoginButton"
 import { useHideHeader } from "./hooks/useHideHeader"
 import { handleChangeIsBurgerClick } from "./store/HeaderStore"
+import { useIsMobile, useWindowWidth } from "../../core/stores/windowStore"
 
 export const Header = () => {
   const isHiding = useHideHeader()
-  const { width } = useWindowSize()
+  const width = useWindowWidth()
   const isAuthenticated = useIsAuthenticated()
   const isMobile = useIsMobile()
-  const pathname = useLocation()
+  const { pathname } = useLocation()
 
   useEffect(() => {
     if (isHiding || !isMobile) {
@@ -54,7 +37,6 @@ export const Header = () => {
       >
         <HeaderNavbar />
 
-        {/* Авторизован — показываем меню юзера, нет — кнопку "Войти" */}
         {isAuthenticated ? <HeaderUserMenu /> : <LoginButton />}
 
         <AuthorizationModalHeader />

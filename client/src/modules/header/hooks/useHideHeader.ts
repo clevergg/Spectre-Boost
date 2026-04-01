@@ -1,21 +1,22 @@
-import { useEffect, useState, useCallback } from "react"
+import { useEffect, useState, useCallback, useRef } from "react"
 
 export const useHideHeader = (): boolean => {
-  const [lastScrollY, setLastScrollY] = useState<number>(0)
+  const lastScrollY = useRef<number>(0)
   const [isHiding, setIsHiding] = useState<boolean>(false)
-  const [scrollDirection, setScrollDirection] = useState<null | string>(null)
+  const scrollDirection = useRef<string | null>(null)
 
   const handleScroll = useCallback(() => {
     const currentScrollY = window.scrollY
-    const direction: string = currentScrollY > lastScrollY && currentScrollY > 100 ? "down" : "up"
+    const direction: string =
+      currentScrollY > lastScrollY.current && currentScrollY > 100 ? "down" : "up"
 
-    if (direction !== scrollDirection) {
-      setScrollDirection(direction)
-      setIsHiding(direction === "down")
+    if (direction !== scrollDirection.current) {
+        scrollDirection.current = direction
+        setIsHiding(direction === "down")
     }
 
-    setLastScrollY(currentScrollY)
-  }, [lastScrollY, scrollDirection])
+    lastScrollY.current = currentScrollY
+  }, [])
 
   useEffect(() => {
     window.addEventListener("scroll", handleScroll)

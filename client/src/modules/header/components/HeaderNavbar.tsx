@@ -4,8 +4,8 @@ import { NavLink, useLocation } from "react-router-dom"
 import { useIsBurgerOpen, handleChangeIsBurgerClick } from "../store/HeaderStore"
 import scrollToTop from "../../../core/helpers/scrollToTop"
 import { routes } from "../../../app/config/routes"
-import { useIsMobile } from "../../../core/hooks/useIsMobile"
 import { useEffect, useRef } from "react"
+import { useIsMobile } from "../../../core/stores/windowStore"
 
 export const HeaderNavbar = () => {
   const { pathname } = useLocation()
@@ -29,14 +29,14 @@ export const HeaderNavbar = () => {
 
     document.addEventListener("mousedown", handleClickOutside)
     return () => document.removeEventListener("mousedown", handleClickOutside)
-  }, [navbarRef, isBurgerOpen])
+  }, [isBurgerOpen])
 
   const handleBurgerClick = (): void => {
     handleChangeIsBurgerClick(!isBurgerOpen)
   }
   return (
     <div
-      onClick={handleBurgerClick}
+      onClick={isMobile ? handleBurgerClick : undefined}
       ref={navbarRef}
       className='flex max-md:flex-col max-md:justify-center items-center'
     >

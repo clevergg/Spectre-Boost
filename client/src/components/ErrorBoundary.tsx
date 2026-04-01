@@ -1,5 +1,6 @@
 import { Component } from "react"
 import type { ErrorInfo, ReactNode } from "react"
+import { routes } from "../app/config/routes"
 
 interface Props {
   children: ReactNode
@@ -28,16 +29,18 @@ export class ErrorBoundary extends Component<Props, State> {
     if (this.state.hasError) {
       return (
         this.props.fallback ?? (
-          <div className='flex flex-col items-center justify-center min-h-[300px] gap-4 text-white'>
-            <p className='font-gilroyMedium text-[clamp(1rem,1.2vw,1.2rem)]'>Что-то пошло не так</p>
+          <div className='flex flex-col items-center justify-center min-h-screen gap-4 text-white'>
+            <p className='font-gilroyMedium text-[clamp(1.1rem,1.25vw,1.25rem)]'>
+              Что-то пошло не так
+            </p>
             <button
               onClick={() => {
                 this.setState({ hasError: false })
-                window.location.reload()
+                window.location.href = routes.home
               }}
               className='px-5 py-2 rounded-xl border border-violet text-white font-gilroy hover:border-pink-gradient1 transition-colors'
             >
-              Попробовать снова
+              Вернуться на главную страницу
             </button>
           </div>
         )

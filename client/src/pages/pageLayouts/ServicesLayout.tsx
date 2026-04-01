@@ -22,7 +22,7 @@ const ServicesLayout = ({ children, seo_config }: ServicesLayoutProps) => {
   return (
     <>
       <SEO {...seo_config} />
-      <div className={ServicesRouteClass}>
+      <div className={`${ServicesRouteClass} w-full`}>
         <BgShiningGroup items={servicesTopShinings} />
         {children}
       </div>

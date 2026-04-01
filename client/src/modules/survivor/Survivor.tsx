@@ -6,7 +6,7 @@ import { ServicesLinks } from "../../shared/ui/ServicesLinks/ServicesLinks"
 
 const Survivor = () => {
   return (
-    <section className='w-full pt-[calc(7rem+7vw)] lg:pt-[calc(5rem+5vw)] pb-[calc(4rem+4vw)] flex flex-col space-y-8 shrink-0 relative'>
+    <section className='w-full pt-[calc(7rem+7vw)] lg:pt-[calc(5rem+5vw)] pb-[calc(4rem+4vw)] flex flex-col space-y-8 relative'>
       <TitleTemplate
         text='Выживший — Топ 50'
         className='w-full text-[clamp(1.8rem,4.8vw,5rem)]/[115%] md:pb-5'

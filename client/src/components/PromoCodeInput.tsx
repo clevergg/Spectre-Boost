@@ -1,19 +1,6 @@
-/**
- * PromoCodeInput — поле ввода промокода с сохранением.
- *
- * Промокод сохраняется в localStorage при:
- * - Успешном вводе вручную
- * - Автозаполнении из URL (?promo=CODE)
- *
- * При загрузке компонента:
- * 1. Проверяем URL → если есть ?promo= → валидируем и сохраняем
- * 2. Если в URL нет → проверяем localStorage → если есть → ревалидируем
- *    (промокод мог быть отключён или исчерпан с последнего визита)
- */
-
 import { useState, useEffect, useRef } from "react"
 import { useSearchParams } from "react-router-dom"
-import { validatePromo, type PromoValidation } from "../../../core/api/promo.api"
+import { validatePromo, type PromoValidation } from "../core/api/promo.api"
 
 const PROMO_STORAGE_KEY = "spectre_promo_code"
 
@@ -29,14 +16,12 @@ export const PromoCodeInput = ({ onApply }: PromoCodeInputProps) => {
   const [error, setError] = useState<string | null>(null)
   const initialized = useRef(false)
 
-  // При монтировании: URL > localStorage
   useEffect(() => {
     if (initialized.current) return
     initialized.current = true
 
     const promoFromUrl = searchParams.get("promo")
     const promoFromStorage = localStorage.getItem(PROMO_STORAGE_KEY)
-
     const codeToCheck = promoFromUrl || promoFromStorage
 
     if (codeToCheck) {
@@ -57,17 +42,11 @@ export const PromoCodeInput = ({ onApply }: PromoCodeInputProps) => {
       setApplied(result)
       setCode(result.code)
       onApply(result)
-
-      // Сохраняем в localStorage
       localStorage.setItem(PROMO_STORAGE_KEY, result.code)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setApplied(null)
       onApply(null)
-
-      // Если промокод из storage стал невалидным — удаляем
       localStorage.removeItem(PROMO_STORAGE_KEY)
-
       if (!silent) {
         setError(err.message || "Промокод не найден")
       }

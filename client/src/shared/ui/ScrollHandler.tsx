@@ -4,50 +4,53 @@ import scrollToTop from "../../core/helpers/scrollToTop"
 
 export const ScrollHandler = () => {
   const { pathname } = useLocation()
-  const isInitLoaded = useRef<boolean>(true)
-  const hasRestoredScroll = useRef<boolean>(false)
+  const isInitLoaded = useRef(true)
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
-    const saveScrollPosition = (): void => {
+    const saveNow = () => {
       sessionStorage.setItem("scrollPosition", window.scrollY.toString())
       sessionStorage.setItem("pathname", pathname)
     }
 
-    const handleBeforeUnload = (): void => {
-      saveScrollPosition()
+    const handleScroll = () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current)
+      timeoutRef.current = setTimeout(saveNow, 200)
     }
 
-    const handleScroll = (): void => {
-      saveScrollPosition()
-    }
-    window.addEventListener("beforeunload", handleBeforeUnload)
     window.addEventListener("scroll", handleScroll)
+    window.addEventListener("beforeunload", saveNow)
 
     return () => {
-      window.removeEventListener("beforeunload", handleBeforeUnload)
       window.removeEventListener("scroll", handleScroll)
-      saveScrollPosition()
+      window.removeEventListener("beforeunload", saveNow)
+      if (timeoutRef.current) clearTimeout(timeoutRef.current)
     }
   }, [pathname])
 
   useEffect(() => {
-    const savedPosition = sessionStorage.getItem("scrollPosition")
-    const savedPathname = sessionStorage.getItem("pathname")
     if (isInitLoaded.current) {
-      if (savedPosition && savedPathname === pathname && !hasRestoredScroll.current) {
-        window.scrollTo({
-          top: parseInt(savedPosition),
-          behavior: "instant",
-        })
-
-        sessionStorage.removeItem("scrollPosition")
-        sessionStorage.removeItem("pathname")
-      }
       isInitLoaded.current = false
-    } else if (savedPathname !== pathname) {
-      scrollToTop("instant")
+
+      const savedPosition = sessionStorage.getItem("scrollPosition")
+      const savedPathname = sessionStorage.getItem("pathname")
+
+      if (savedPosition && savedPathname === pathname) {
+        requestAnimationFrame(() => {
+          window.scrollTo({
+            top: parseInt(savedPosition),
+            behavior: "instant",
+          })
+        })
+      }
+
+      sessionStorage.removeItem("scrollPosition")
+      sessionStorage.removeItem("pathname")
+      return
     }
+
+    scrollToTop("instant")
   }, [pathname])
 
-  return <span className='m-0 p-0 h-0 w-0'></span>
+  return null
 }
