@@ -31,7 +31,7 @@ export const Account = () => {
       <div className='flex flex-col z-1 lgx:flex-row h-full flex-1 lgx:justify-between max-lgx:space-y-3 transform-gpu md:space-x-3 lgx:space-x-7'>
         <Sidebar currentTab={currentTab} onTabChange={handleChangeTab} />
 
-        <div className='w-full flex flex-1'>{renderContent()}</div>
+        <div className='w-full lgx:min-w-0 lgx:flex-2 flex flex-1'>{renderContent()}</div>
       </div>
     </div>
   )

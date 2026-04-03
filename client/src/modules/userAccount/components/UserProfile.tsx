@@ -22,14 +22,11 @@ export const UserProfile = () => {
   const displayName = user.username || user.firstName || "Пользователь"
 
   // Подзаголовок: @username если есть, иначе telegramId
-  const subtitle = user.username
-    ? `@${user.username}`
-    : `ID: ${user.telegramId}`
+  const subtitle = user.username ? `@${user.username}` : `ID: ${user.telegramId}`
 
   return (
-    <div className='flex-shrink-0 border border-white bg-bgblack rounded-[11px]'>
-      <figure className='flex flex-col py-6 xl:flex-row xl:justify-center items-center md:space-x-4 max-md:space-y-1'>
-
+    <div className='shrink-0 border border-white bg-bgblack rounded-[11px]'>
+      <figure className='flex flex-col p-6 xl:flex-row xl:justify-center items-center md:space-x-4 max-md:space-y-1'>
         {/* Аватар: фото из Telegram или плейсхолдер с первой буквой */}
         {user.photoUrl ? (
           <img
@@ -39,7 +36,7 @@ export const UserProfile = () => {
             className='w-25 h-25 object-cover rounded-full'
           />
         ) : (
-          <div className='w-25 h-25 rounded-full bg-gradient-to-r from-pink-gradient1 to-pink-gradient2 flex items-center justify-center'>
+          <div className='w-25 h-25 rounded-full bg-linear-to-r from-pink-gradient1 to-pink-gradient2 flex items-center justify-center'>
             <span className='text-3xl font-unbounded text-white'>
               {displayName.charAt(0).toUpperCase()}
             </span>
@@ -50,9 +47,7 @@ export const UserProfile = () => {
           <h1 className='text-[clamp(1.4rem,1.6vw,1.6rem)] font-unbounded text-white'>
             {displayName}
           </h1>
-          <p className='text-gray-600 font-gilroy text-[clamp(1rem,1.4vw,1.4rem)]'>
-            {subtitle}
-          </p>
+          <p className='text-gray-600 font-gilroy text-[clamp(1rem,1.4vw,1.4rem)]'>{subtitle}</p>
         </figcaption>
       </figure>
     </div>

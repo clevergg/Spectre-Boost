@@ -4,7 +4,7 @@ import { BgShiningGroup } from "../../shared/ui/BackgroundShining/BgShiningGroup
 import { aboutUsHero } from "../../shared/ui/BackgroundShining/BgShiningSets"
 export const AboutUsHero = () => {
   return (
-    <section className='px-7 w-full h-screen relative py-[calc(4rem+4vw)]'>
+    <section className='px-7 w-full h-full 2xl:h-screen relative py-[calc(4rem+4vw)]'>
       <div className='relative space-y-8 pt-15 xl:pt-10 flex flex-col justify-center items-center text-center'>
         <h1 className='text-[clamp(3rem,6.5vw,7.3rem)]/[115%] font-unbounded text-gradient-purple-blue relative z-1'>
           SPECTRE BOOST

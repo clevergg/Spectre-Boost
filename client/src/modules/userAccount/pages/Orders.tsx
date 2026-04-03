@@ -65,9 +65,7 @@ const Orders = () => {
   if (error) {
     return (
       <div className='bg-bgblack border w-full h-full min-h-[500px] border-white flex-1 rounded-[11px] p-4 flex flex-col items-center justify-center gap-4'>
-        <p className='text-red-400 font-gilroy text-[clamp(1rem,1.2vw,1.2rem)]'>
-          {error}
-        </p>
+        <p className='text-red-400 font-gilroy text-[clamp(1rem,1.2vw,1.2rem)]'>{error}</p>
         <button
           onClick={fetchOrders}
           className='text-white font-gilroy underline hover:text-gray-300'
@@ -79,13 +77,13 @@ const Orders = () => {
   }
 
   return (
-    <div
-      className={`bg-bgblack ${orders.length < 4 ? "lgx:max-h-[500px]" : ""} border w-full h-full min-h-[500px] border-white flex-1 scrollbar-hide rounded-[11px] p-4`}
-    >
+    <div className='bg-bgblack border w-full h-full min-h-[500px] border-white flex-1 scrollbar-hide rounded-[11px] p-4 flex flex-col'>
       <OrdersTitle />
 
       {orders.length === 0 ? (
-        <NotFoundOrders />
+        <div className='flex-1 flex items-center justify-center'>
+          <NotFoundOrders />
+        </div>
       ) : (
         <div className='space-y-2'>
           {orders.map(order => (
