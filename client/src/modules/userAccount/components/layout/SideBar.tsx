@@ -10,10 +10,10 @@ interface SidebarProps {
 
 const Sidebar = ({ currentTab, onTabChange }: SidebarProps) => {
   return (
-    <aside className='lgx:max-h-[500px] flex flex-col w-full lgx:flex-1 space-y-3 lgx:space-y-5'>
+    <aside className='h-fit flex flex-col w-full lgx:flex-[1] space-y-3 lgx:space-y-5'>
       <UserProfile />
 
-      <nav className='space-y-2 flex-1 border px-4 py-8 border-white bg-bgblack rounded-[11px]'>
+      <nav className='space-y-2 flex-1 h-full border px-4 py-8 border-white bg-bgblack rounded-[11px]'>
         {TabData.map(item => (
           <TabButton
             key={item.tab}

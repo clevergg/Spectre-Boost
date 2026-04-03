@@ -52,7 +52,7 @@ export const MainRouter = () => {
             <Route
               element={
                 <ProtectedRoute>
-                  <DefaultLayout mainClassName='flex-1 flex w-full max-w-[1720px] px-4 md:px-8 justify-center' />
+                  <DefaultLayout mainClassName='flex-1 flex w-full max-w-[1720px] px-4 md:px-8' />
                 </ProtectedRoute>
               }
             >

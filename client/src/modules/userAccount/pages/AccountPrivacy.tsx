@@ -37,20 +37,26 @@ const AccountPrivacy = () => {
             </div>
             {user.lastName && (
               <div className='flex justify-between items-center'>
-                <span className='text-white/50 font-gilroy text-[clamp(0.9rem,1vw,1rem)]'>Фамилия</span>
+                <span className='text-white/50 font-gilroy text-[clamp(0.9rem,1vw,1rem)]'>
+                  Фамилия
+                </span>
                 <span className='text-white font-gilroy text-[clamp(0.9rem,1vw,1rem)]'>
                   {user.lastName}
                 </span>
               </div>
             )}
             <div className='flex justify-between items-center'>
-              <span className='text-white/50 font-gilroy text-[clamp(0.9rem,1vw,1rem)]'>Username</span>
+              <span className='text-white/50 font-gilroy text-[clamp(0.9rem,1vw,1rem)]'>
+                Username
+              </span>
               <span className='text-white font-gilroy text-[clamp(0.9rem,1vw,1rem)]'>
                 {user.username ? `@${user.username}` : "—"}
               </span>
             </div>
             <div className='flex justify-between items-center'>
-              <span className='text-white/50 font-gilroy text-[clamp(0.9rem,1vw,1rem)]'>Telegram ID</span>
+              <span className='text-white/50 font-gilroy text-[clamp(0.9rem,1vw,1rem)]'>
+                Telegram ID
+              </span>
               <span className='text-white font-gilroy text-[clamp(0.9rem,1vw,1rem)]'>
                 {user.telegramId}
               </span>
@@ -58,7 +64,11 @@ const AccountPrivacy = () => {
             <div className='flex justify-between items-center'>
               <span className='text-white/50 font-gilroy text-[clamp(0.9rem,1vw,1rem)]'>Роль</span>
               <span className='text-white font-gilroy text-[clamp(0.9rem,1vw,1rem)]'>
-                {user.role === "ADMIN" ? "Администратор" : user.role === "WORKER" ? "Бустер" : "Покупатель"}
+                {user.role === "ADMIN"
+                  ? "Администратор"
+                  : user.role === "WORKER"
+                    ? "Бустер"
+                    : "Покупатель"}
               </span>
             </div>
           </div>
@@ -70,7 +80,8 @@ const AccountPrivacy = () => {
             Безопасность
           </h2>
           <p className='text-white/60 font-gilroy text-[clamp(0.85rem,0.95vw,0.95rem)] mb-4'>
-            Вход в аккаунт выполнен через Telegram. Для защиты аккаунта включите двухфакторную аутентификацию в настройках Telegram.
+            Вход в аккаунт выполнен через Telegram. Для защиты аккаунта включите двухфакторную
+            аутентификацию в настройках Telegram.
           </p>
           <button
             onClick={handleLogout}
