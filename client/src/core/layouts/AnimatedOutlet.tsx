@@ -15,6 +15,7 @@ export const AnimatedOutlet = () => {
           ease: "linear",
         }}
         key={location.pathname}
+				className='w-full'
       >
         {outlet}
       </motion.div>

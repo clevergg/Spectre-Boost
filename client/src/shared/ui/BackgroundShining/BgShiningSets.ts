@@ -90,20 +90,21 @@ export const servicesBottomShinings: BgShiningProps[] = [
     className: "w-115 h-115 max-sm:h-[15%] max-md:w-[50%] max-md:h-[25%]",
   },
   {
-    top: "top-150 max-md:top-240",
-    left: "left-0 max-sm:left-[-50px]",
-    bgColor: "bg-[#090717]",
-    blur: "blur-[80px]",
+    top: "top-140 max-md:top-240",
+    left: "left-0 max-md:left-[-100px]",
+    bgColor: "bg-[#140819]",
+    blur: "blur-[120px]",
     animation: "animate-[moveInCircle_30s_ease-in-out_infinite]",
-    className: "w-90 h-90",
+    className: "w-[50%] h-220 max-xl:w-154 max-md:w-104 max-md:h-104 max-xl:h-154",
+    brightness: "brightness-100",
   },
   {
-    top: "top-180 max-md:top-270",
-    left: "left-90 max-sm:left-40",
-    bgColor: "bg-[#140819]",
-    blur: "blur-[80px]",
+    top: "top-170 max-md:top-270",
+    right: "right-40 max-xl:right-[-70px]",
+    bgColor: "bg-[#090717]",
+    blur: "blur-[120px]",
     animation: "animate-[moveInCircle_30s_ease-in-out_infinite]",
-    className: "w-70 h-70",
+    className: "w-[50%] h-200 max-xl:w-154 max-md:w-104 max-md:h-104 max-xl:h-154",
   },
   {
     bottom: "bottom-[-300px]",
@@ -119,7 +120,7 @@ export const servicesBottomShinings: BgShiningProps[] = [
 
 export const aboutUsShinings: BgShiningProps[] = [
   {
-    top: "top-100 max-md:top-240",
+    top: "top-140 max-md:top-240",
     left: "left-0 max-md:left-[-100px]",
     bgColor: "bg-[#140819]",
     blur: "blur-[120px]",

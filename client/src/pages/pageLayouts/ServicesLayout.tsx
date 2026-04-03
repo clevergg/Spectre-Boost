@@ -35,7 +35,7 @@ const ServicesLayout = ({ children, seo_config }: ServicesLayoutProps) => {
         <BgShiningGroup items={servicesBottomShinings.slice(2, 4)} />
 
         <Questions />
-        <BgShiningGroup items={servicesBottomShinings.slice(4)} />
+        {/* <BgShiningGroup items={servicesBottomShinings.slice(4)} /> */}
       </div>
     </>
   )

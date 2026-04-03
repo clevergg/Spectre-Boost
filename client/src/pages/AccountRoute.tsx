@@ -6,11 +6,11 @@ import { accountShinings } from "../shared/ui/BackgroundShining/BgShiningSets"
 
 const AccountRoute = () => {
   return (
-    <div className='relative w-full max-w-[1720px]'>
+    <div className='relative w-full'>
       <SEO {...SEO_CONFIG.account} />
       <BgShiningGroup items={accountShinings.slice(0, 1)} />
-      <Account />
       <BgShiningGroup items={accountShinings.slice(1)} />
+      <Account />
     </div>
   )
 }
