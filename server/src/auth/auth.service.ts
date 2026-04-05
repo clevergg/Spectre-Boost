@@ -30,30 +30,20 @@ interface PendingLogin {
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
-
-  // Хранилище ожидающих кодов авторизации (в памяти)
-  // В проде можно заменить на Redis
   private pendingLogins = new Map<string, PendingLogin>();
 
   constructor(
     private readonly prisma: PrismaService,
     private readonly jwtService: JwtService,
   ) {
-    // Очистка просроченных кодов каждые 5 минут
     setInterval(() => this.cleanupExpiredCodes(), 5 * 60 * 1000);
   }
 
-  // ─── Авторизация через код (новый способ) ───
+  // ─── Авторизация через код ───
 
-  /**
-   * Генерировать уникальный 6-значный код для авторизации.
-   * Фронт вызывает POST /api/auth/code → получает код → показывает юзеру.
-   */
   generateLoginCode(): { code: string; expiresIn: number } {
-    // Генерируем 6-значный код
     const code = crypto.randomInt(100000, 999999).toString();
 
-    // Сохраняем с TTL 5 минут
     this.pendingLogins.set(code, {
       code,
       createdAt: Date.now(),
@@ -61,54 +51,60 @@ export class AuthService {
     });
 
     this.logger.log(`Login code generated: ${code}`);
-
-    return { code, expiresIn: 300 }; // 5 минут
+    return { code, expiresIn: 300 };
   }
 
   /**
-   * Бот подтверждает код — привязывает Telegram юзера к коду.
-   * Вызывается когда юзер пишет боту /login XXXXXX.
+   * Бот подтверждает код.
+   * Принимает данные юзера включая photoUrl для аватарки.
    */
-  async confirmLoginCode(code: string, telegramId: bigint): Promise<boolean> {
+  async confirmLoginCode(
+    code: string,
+    telegramId: bigint,
+    userData?: {
+      username?: string | null;
+      firstName?: string | null;
+      lastName?: string | null;
+      photoUrl?: string | null;
+    },
+  ): Promise<boolean> {
     const pending = this.pendingLogins.get(code);
 
-    if (!pending) {
-      return false; // код не найден
-    }
+    if (!pending) return false;
 
-    // Проверяем срок — 5 минут
     if (Date.now() - pending.createdAt > 5 * 60 * 1000) {
       this.pendingLogins.delete(code);
-      return false; // истёк
+      return false;
     }
 
-    if (pending.confirmed) {
-      return false; // уже использован
-    }
+    if (pending.confirmed) return false;
 
-    // Создаём/обновляем юзера
+    // Создаём/обновляем юзера с фото
     const user = await this.prisma.user.upsert({
       where: { telegramId },
-      update: {},
+      update: {
+        username: userData?.username || undefined,
+        firstName: userData?.firstName || undefined,
+        lastName: userData?.lastName || undefined,
+        photoUrl: userData?.photoUrl || undefined,
+      },
       create: {
         telegramId,
+        username: userData?.username || null,
+        firstName: userData?.firstName || null,
+        lastName: userData?.lastName || null,
+        photoUrl: userData?.photoUrl || null,
       },
     });
 
-    // Подтверждаем код
     pending.telegramId = telegramId;
     pending.userId = user.id;
     pending.confirmed = true;
 
     this.logger.log(`Login code ${code} confirmed by TG user ${telegramId}`);
-
     return true;
   }
 
-  /**
-   * Фронт проверяет код — если подтверждён, возвращает JWT.
-   * Фронт вызывает POST /api/auth/code/check каждые 2 сек.
-   */
   async checkLoginCode(code: string): Promise<(TokenPair & { user: any }) | null> {
     const pending = this.pendingLogins.get(code);
 
@@ -116,14 +112,12 @@ export class AuthService {
       return null;
     }
 
-    // Код подтверждён — генерируем JWT
     const user = await this.prisma.user.findUnique({
       where: { id: pending.userId },
     });
 
     if (!user) return null;
 
-    // Удаляем использованный код
     this.pendingLogins.delete(code);
 
     const tokens = this.generateTokens({
@@ -140,9 +134,6 @@ export class AuthService {
     };
   }
 
-  /**
-   * Очистка просроченных кодов (старше 5 минут)
-   */
   private cleanupExpiredCodes() {
     const now = Date.now();
     for (const [code, pending] of this.pendingLogins) {
@@ -152,7 +143,7 @@ export class AuthService {
     }
   }
 
-  // ─── Авторизация через Telegram Login Widget (старый способ — оставляем) ───
+  // ─── Telegram Login Widget (фоллбэк) ───
 
   verifyTelegramAuth(data: TelegramAuthDto): boolean {
     const { hash, ...authData } = data;

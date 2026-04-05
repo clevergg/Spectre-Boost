@@ -91,7 +91,7 @@ export class TelegramBotUpdate {
     );
     return;
   }
-  @Command('login')
+@Command('login')
   async onLogin(@Ctx() ctx: Context) {
     const from = ctx.from;
     if (!from) return undefined;
@@ -117,25 +117,30 @@ export class TelegramBotUpdate {
       return undefined;
     }
 
-    // Обновляем данные юзера
-    await this.prisma.user.upsert({
-      where: { telegramId: BigInt(from.id) },
-      update: {
-        username: from.username || null,
-        firstName: from.first_name || null,
-        lastName: from.last_name || null,
-      },
-      create: {
-        telegramId: BigInt(from.id),
-        username: from.username || null,
-        firstName: from.first_name || null,
-        lastName: from.last_name || null,
-      },
-    });
+    // Получаем фото профиля
+    let photoUrl: string | null = null;
+    try {
+      const photos = await ctx.telegram.getUserProfilePhotos(from.id, 0, 1);
+      if (photos.total_count > 0 && photos.photos[0]?.[0]) {
+        const fileId = photos.photos[0][photos.photos[0].length - 1].file_id;
+        const file = await ctx.telegram.getFile(fileId);
+        if (file.file_path) {
+          photoUrl = `https://api.telegram.org/file/bot${process.env.BOT_TOKEN}/${file.file_path}`;
+        }
+      }
+    } catch (err) {
+      this.logger.warn(`Failed to get profile photo: ${err}`);
+    }
 
     const confirmed = await this.authService.confirmLoginCode(
       code,
       BigInt(from.id),
+      {
+        username: from.username || null,
+        firstName: from.first_name || null,
+        lastName: from.last_name || null,
+        photoUrl,
+      },
     );
 
     if (confirmed) {
@@ -153,6 +158,7 @@ export class TelegramBotUpdate {
 
     return undefined;
   }
+
 
 
   /**
