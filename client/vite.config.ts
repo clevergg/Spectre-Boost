@@ -34,11 +34,14 @@ export default defineConfig({
       "@modules": path.resolve(__dirname, "./src/modules"),
     },
   },
+  esbuild: {
+    drop: ["console", "debugger"],
+  },
   server: {
     proxy: {
       // Все запросы /api/* проксируются на бэкенд
-      '/api': {
-        target: 'http://localhost:3000',
+      "/api": {
+        target: "http://localhost:3000",
         changeOrigin: true,
         secure: false,
       },

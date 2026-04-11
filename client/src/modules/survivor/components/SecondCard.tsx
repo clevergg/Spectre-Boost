@@ -1,13 +1,32 @@
 import { GoClockFill } from "react-icons/go"
 import Survivor from "../../../assets/pubgIcons/prodIcons/Survivor.png"
-import { useState } from "react"
+import { useCallback, useState } from "react"
 import type { PromoValidation } from "../../../core/api/promo.api"
-import { ShowPrice } from "./ShowPrice"
 import { TitleTemplate } from "../../../shared/ui/TitleTemplate"
 import { PromoCodeInput } from "../../../components/PromoCodeInput"
+import { useAmount, useBoostVariant } from "../store/SurvivorStore"
+import { useIsAuthenticated } from "../../../core/stores/authStore"
+import { ShowPrice } from "../../../shared/ui/ShowPrice"
+import { handleOrder } from "../services/orderService"
+import { handleChangeIsModalClick } from "../../header/store/HeaderStore"
 
 export const SecondCard = () => {
   const [promo, setPromo] = useState<PromoValidation | null>(null)
+  const amount = useAmount()
+  const boostVariant = useBoostVariant()
+  const isAuthenticated = useIsAuthenticated()
+  const [isProcessing, setIsProcessing] = useState(false)
+
+  const onOrder = useCallback(() => {
+    handleOrder({
+      isAuthenticated,
+      setIsProcessing,
+      boostVariant,
+      amount,
+      promo,
+      handleChangeIsModalClick,
+    })
+  }, [isAuthenticated, promo, boostVariant, amount])
   return (
     <article className='max-lg:w-full bg-transparent pt-12 lg:pt-15 lg:shrink-0 border border-gray lg:flex-2 rounded-xl min-h-full flex flex-col'>
       <TitleTemplate
@@ -26,7 +45,13 @@ export const SecondCard = () => {
 
       <div className='px-5 max-lg:my-4 lg:mt-auto space-y-5'>
         <PromoCodeInput onApply={setPromo} />
-        <ShowPrice promo={promo} />
+        <ShowPrice
+          promo={promo}
+          amount={amount}
+          isAuthenticated={isAuthenticated}
+          isProcessing={isProcessing}
+          onOrder={onOrder}
+        />
       </div>
     </article>
   )

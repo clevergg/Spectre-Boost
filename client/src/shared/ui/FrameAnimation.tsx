@@ -1,4 +1,3 @@
-import { useLocation } from "react-router-dom"
 import { AnimatePresence, motion } from "framer-motion"
 import type { ReactNode } from "react"
 interface FrameAnimationProps {

@@ -12,6 +12,7 @@ import {
   setStartRating,
   setTargetRating,
 } from "../../store/CalculatorSelectedStore"
+import { MAX_RATING } from "../../data/CalculatorData"
 
 export const FirstCardInputs = () => {
   const startRating = useStartRating()
@@ -24,13 +25,13 @@ export const FirstCardInputs = () => {
         placeholder='Например: 1200'
         value={startRating}
         onChange={setStartRating}
+        max={MAX_RATING - 1}
       />
       <RatingInput
         label='Желаемый рейтинг'
         placeholder='Например: 2500'
         value={targetRating}
         onChange={setTargetRating}
-        min={startRating > 0 ? startRating + 1 : 0}
       />
     </div>
   )

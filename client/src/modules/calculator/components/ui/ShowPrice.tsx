@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { useAmount, useItems } from "../../store/CalculatorAdditionsStore"
+import { changeAmount, useAmount, useItems } from "../../store/CalculatorAdditionsStore"
 import { useStartRating, useTargetRating } from "../../store/CalculatorSelectedStore"
 import { useIsAuthenticated } from "../../../../core/stores/authStore"
 import { createOrder } from "../../../../core/api/orders.api"
