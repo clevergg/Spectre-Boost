@@ -13,7 +13,7 @@ interface CalculatorProps {
  *
  * Логика: проходим по каждым 100 очков от start до target.
  * Для каждого участка определяем ранг и берём его pricePerHundred.
- * Например: 1300 → 1900 = 
+ * Например: 1300 → 1900 =
  *   - 1300-1399: Бронза (150₽)
  *   - 1400-1499: Серебро (200₽)
  *   - 1500-1599: Серебро (200₽)
@@ -23,6 +23,8 @@ interface CalculatorProps {
  *   = 150 + 200*4 + 300 = 1250₽
  */
 class Calculator {
+  private readonly MIN_PRICE = 1000
+
   calculatePrice(props: CalculatorProps): void {
     const { startRating, targetRating, items } = props
 
@@ -48,6 +50,8 @@ class Calculator {
 
       current = stepEnd
     }
+
+    basePrice = Math.max(this.MIN_PRICE, basePrice)
 
     // Применяем множители доп. услуг
     let totalMultiplier = 1

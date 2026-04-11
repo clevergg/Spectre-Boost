@@ -1,21 +1,40 @@
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { GoClockFill } from "react-icons/go"
-import { useItems } from "../store/CalculatorAdditionsStore"
+import { useAmount, useItems } from "../store/CalculatorAdditionsStore"
 import { useStartRating, useTargetRating } from "../store/CalculatorSelectedStore"
 import { calculator } from "../services/Calculator"
 import { TitleTemplate } from "../../../shared/ui/TitleTemplate"
 
 import { SecondCardAdditionsList } from "./ui/SecondCardAdditionsList"
-import { ShowPrice } from "./ui/ShowPrice"
 import { type PromoValidation } from "../../../core/api/promo.api"
 import { ShowRanksSection } from "./ShowRanksSection"
 import { PromoCodeInput } from "../../../components/PromoCodeInput"
+import { ShowPrice } from "../../../shared/ui/ShowPrice"
+import { useIsAuthenticated } from "../../../core/stores/authStore"
+import { handleOrder } from "../services/orderService"
+import { handleChangeIsModalClick } from "../../header/store/HeaderStore"
 
 export const SecondCard = () => {
   const items = useItems()
   const startRating = useStartRating()
   const targetRating = useTargetRating()
   const [promo, setPromo] = useState<PromoValidation | null>(null)
+  const amount = useAmount()
+  const isAuthenticated = useIsAuthenticated()
+  const [isProcessing, setIsProcessing] = useState(false)
+
+  const onOrder = useCallback(() => {
+    handleOrder({
+      isAuthenticated,
+      setIsProcessing,
+      amount,
+      handleChangeIsModalClick,
+      promo,
+      items,
+      startRating,
+      targetRating,
+    })
+  }, [isAuthenticated, amount, promo, items, startRating, targetRating])
 
   useEffect(() => {
     calculator.calculatePrice({ startRating, targetRating, items })
@@ -38,11 +57,15 @@ export const SecondCard = () => {
         </p>
       </div>
 
-      {/* Промокод */}
-
       <div className='mt-auto px-5'>
         <PromoCodeInput onApply={setPromo} />
-        <ShowPrice promo={promo} />
+        <ShowPrice
+          promo={promo}
+          amount={amount}
+          isAuthenticated={isAuthenticated}
+          isProcessing={isProcessing}
+          onOrder={onOrder}
+        />
       </div>
     </article>
   )

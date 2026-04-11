@@ -13,7 +13,7 @@ export const ShowRanksSection = () => {
   const startRank = useStartRank()
   const targetRank = useTargetRank()
   return (
-    <div className='bg-[#0A0A0A] w-full my-6 py-3'>
+    <div className='bg-[#0A0A0A] w-full my-6 h-[75px]'>
       {startRank && targetRank && startRating < targetRating && (
         <div className='flex flex-row items-center px-5 justify-center h-full gap-3'>
           <ShowRankDiv imageSrc={startRank.image} rankName={startRank.name} rating={startRating} />

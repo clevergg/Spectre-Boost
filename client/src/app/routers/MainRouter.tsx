@@ -20,6 +20,7 @@ const ServicesPage = lazy(() => import("../../pages/ServicesRoute"))
 const AboutUsPage = lazy(() => import("../../pages/AboutUsRoute"))
 const AccountPage = lazy(() => import("../../pages/AccountRoute"))
 const SurvivorPage = lazy(() => import("../../pages/SurvivorRoute"))
+const NotFound = lazy(() => import("../../pages/404"))
 
 /**
  * Компонент внутри Router — вызывает хуки зависящие от роутера
@@ -58,6 +59,7 @@ export const MainRouter = () => {
             >
               <Route path={routes.account} element={<AccountPage />} />
             </Route>
+            <Route path='*' element={<NotFound />} />
           </Routes>
         </Suspense>
       </ErrorBoundary>

@@ -1,9 +1,7 @@
-import { lazy } from "react"
 import { FirstCardAdditions } from "./FirstCardAdditions"
 import { FirstCardInputs } from "./ui/FirstCardInputs"
 import { TitleTemplate } from "../../../shared/ui/TitleTemplate"
-
-const TextType = lazy(() => import("../../../shared/ui/TextType"))
+import TextType from "../../../shared/ui/TextType"
 
 export const FirstCard = () => {
   return (

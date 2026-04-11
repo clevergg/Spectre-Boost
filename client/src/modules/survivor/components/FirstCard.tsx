@@ -1,11 +1,10 @@
-import { lazy } from "react"
 import { RadioSurvivor } from "./RadioSurvivor"
 import { useBoostVariant } from "../store/SurvivorStore"
 import { detailsByBoostType } from "../data/FirstCardDetails"
 import { AnimatePresence, motion } from "framer-motion"
 import { TitleTemplate } from "../../../shared/ui/TitleTemplate"
+import TextType from '../../../shared/ui/TextType'
 
-const TextType = lazy(() => import("../../../shared/ui/TextType"))
 
 export const FirstCard = () => {
   const boostVariant = useBoostVariant()
