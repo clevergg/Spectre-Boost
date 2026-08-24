@@ -1,4 +1,6 @@
-import spectreLogo from "../../../assets/spectre.svg"
+import medals from "../../../assets/medals.png"
+import survivor from "../../../assets/survivor.png"
+import boost from "../../../assets/boost.png"
 
 interface HomeCardsDataInterface {
   id: number
@@ -18,7 +20,7 @@ export const HomeCardsData: HomeCardsDataInterface[] = [
     soon: true,
     description: "Поможем получить медали без лишней траты времени. Быстро и конфиденциально.",
     buttonText: "Открыть медали",
-    image: spectreLogo,
+    image: medals,
   },
   {
     id: 2,
@@ -27,7 +29,7 @@ export const HomeCardsData: HomeCardsDataInterface[] = [
     description:
       "Все заказы выполняются в режиме невидимка, ваша анонимность – наш приоритет. Никто не узнает о том, что вы заказывали буст.",
     buttonText: "Заказать буст",
-    image: spectreLogo,
+    image: boost,
   },
   {
     id: 3,
@@ -36,6 +38,6 @@ export const HomeCardsData: HomeCardsDataInterface[] = [
     description:
       "Попадание в топ 50 сервера — без гринда и бессонных ночей. Быстро и с гарантией результата.",
     buttonText: "Заказать буст топ 50",
-    image: spectreLogo,
+    image: survivor,
   },
 ]
